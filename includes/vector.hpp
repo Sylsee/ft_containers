@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 16:26:07 by spoliart          #+#    #+#             */
-/*   Updated: 2022/03/23 17:50:33 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/03/25 19:51:53 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,22 +47,42 @@ namespace ft
 			{}
 
 			explicit vector (size_type n, const value_type& val = value_type(),
-					const allocator_type& alloc = allocator_type())
+					const allocator_type& alloc = allocator_type()) :
+				_alloc(alloc),
+				_size(n),
+				_capacity(n)
 			{
-				insert(begin(), n, val);
+				_data = allocator_type().allocate(n);
+				while (n--)
+					allocator_type().construct(_data[n], val);
 			}
 
-			template <class InputIterator>
-			vector (InputIterator first, InputIterator last,
-					const allocator_type& alloc = allocator_type())
-			{}
+//			template <class InputIterator>
+//			vector (InputIterator first, InputIterator last,
+//					const allocator_type& alloc = allocator_type())
+//			{}
 
 			vector (const vector& x)
-			{}
-
-			vector::~vector()
 			{
-				;
+				*this = x;
+			}
+
+			~vector()
+			{
+				this->clear();
+			}
+
+			vector& operator= (const vector& rhs)
+			{
+				if (this != &rhs)
+				{
+					this->clear();
+					_alloc = rhs._alloc;
+					_size = rhs._size;
+					_capacity = rhs._capacity;
+
+				}
+				return *this;
 			}
 
 		/* Iterators */
@@ -90,11 +110,30 @@ namespace ft
 
 		/* Modifiers */
 
+			template < class InputIterator >
+			void	assign( InputIterator first, InputIterator last )
+			{
+				if (last - first > max_size())
+					throw std::length_error("cannot create ft::vector larger than max_size()");
+			}
+
+			void	assign( size_type n, const value_type &val)
+			{
+				if (n > max_size() || )
+					throw std::length_error("cannot create ft::vector larger than max_size()");
+			}
+
+			void	clear( void )
+			{
+				for (int n = 0; n < _size; n++)
+					allocator_type().destroy(_data[n]);
+				_size = 0;
+			}
+
 		/* Allocator */
 
 			/**
 			 * @brief Returns a copy of the allocator object associated with the vector.
-			 * 
 			 * @return The allocator.
 			**/
 			allocator_type	get_allocator( void ) const { return _alloc; }
@@ -112,7 +151,7 @@ namespace ft
 	/**
 	 * @brief Overload of swap (vector).
 	 * The content of container are swaped.
-	 * 
+	 *
 	 * @param x,y the containers to swap.
 	**/
 	template < class T, class Alloc >
