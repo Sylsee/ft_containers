@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 21:16:21 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/06 19:33:42 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/04/09 14:26:33 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 	{
 		std::cerr << "Usage: ./test seed" << std::endl;
 		std::cerr << "Provide a seed please" << std::endl;
-		std::cerr << "Count value:" << COUNT << std::endl;
+		std::cerr << "Count value: " << COUNT << std::endl;
 		return 1;
 	}
 	const int seed = atoi(argv[1]);
