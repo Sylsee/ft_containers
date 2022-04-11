@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 16:26:07 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/09 17:27:49 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/04/11 18:37:39 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,9 @@ namespace ft
 																		  _size(n),
 																		  _capacity(n)
 		{
-			_data = allocator_type().allocate(n);
+			_data = _alloc.allocate(n);
 			while (n--)
-				allocator_type().construct(&_data[n], val);
+				_alloc.construct(&_data[n], val);
 		}
 
 		/**
@@ -95,7 +95,7 @@ namespace ft
 		 *
 		 * @param x
 		 */
-		vector(const vector &x)
+		vector(const vector &x) : _data(NULL)
 		{
 			*this = x;
 		}
@@ -109,13 +109,14 @@ namespace ft
 		{
 			if (this != &rhs)
 			{
-				this->destroy();
-				_alloc = rhs._alloc;
-				_size = rhs._size;
-				_capacity = rhs._capacity;
-				_data = allocator_type().allocate(_capacity);
-				for (size_type n = 0; n < _size; n++)
-					allocator_type().construct(&_data[n], rhs[n]);
+				if (this->_data)
+					this->destroy();
+				this->_alloc = rhs._alloc;
+				this->_size = rhs._size;
+				this->_capacity = rhs._size;
+				this->_data = _alloc.allocate(this->_capacity);
+				for (size_type n = 0; n < this->_size; n++)
+					_alloc.construct(&this->_data[n], rhs[n]);
 			}
 			return *this;
 		}
@@ -134,7 +135,7 @@ namespace ft
 		 * @brief Returns the maximum number of elements that the vector can hold.
 		 * @return The maximum number of elements a vector container can hold as content.
 		 **/
-		size_type max_size(void) const { return allocator_type().max_size(); }
+		size_type max_size(void) const { return _alloc.max_size(); }
 
 		/**
 		 * @brief Returns the size of the storage space currently allocated for the vector, expressed in terms of elements.
@@ -149,6 +150,21 @@ namespace ft
 		bool empty(void) const
 		{
 			return _size == 0;
+		}
+
+		/**
+		 * @brief 
+		 * 
+		 * @param n 
+		 */
+		void reserve (size_type n)
+		{
+			if (n > this->max_size())
+				throw std::length_error("ft::reserve");
+			else if (n > this->capacity())
+			{
+				;
+			}
 		}
 
 		/* Element access */
@@ -199,13 +215,17 @@ namespace ft
 				throw std::length_error("cannot create ft::vector larger than max_size()");
 
 			if (n > this->_capacity) {
-				ft::vector<value_type, allocator_type> tmp(n, val);
-				this = &tmp;
+				for (size_type i = 0; i < this->_size; i++)
+					_alloc.destroy(&_data[i]);
+				_alloc.deallocate(_data, this->_capacity);
+
+				this->_capacity = n;
+				this->_data = _alloc.allocate(n);
 			}
 			else {
 				for (size_type i = 0; i < n; i++) {
-					allocator_type().destroy(&_data[i]);
-					allocator_type().construct(&_data[i], val);
+					_alloc.destroy(&_data[i]);
+					_alloc.construct(&_data[i], val);
 				}
 				this->_size = n;
 			}
@@ -220,20 +240,20 @@ namespace ft
 				value_type *tmp_data = this->_data;
 
 				this->_capacity++;
-				this->_data = allocator_type().allocate(this->_capacity);
+				this->_data = _alloc.allocate(this->_capacity);
 
 				for (size_type i = 0; i < this->_size; i++) {
-					allocator_type().construct(&this->_data[i], tmp_data[i]);
-					allocator_type().destroy(tmp_data[i]);
+					_alloc.construct(&this->_data[i], tmp_data[i]);
+					_alloc.destroy(tmp_data[i]);
 				}
 
-				allocator_type().construct(&this->_data[this->_size], val);
+				_alloc.construct(&this->_data[this->_size], val);
 				this->_size++;
 
-				allocator_type().deallocate(tmp_data, this->_capacity - 1);
+				_alloc.deallocate(tmp_data, this->_capacity - 1);
 			}
 			else {
-				allocator_type().construct(&this->_data[this->_size], val);
+				_alloc.construct(&this->_data[this->_size], val);
 				this->_size++;
 			}
 		}
@@ -262,7 +282,7 @@ namespace ft
 		void clear(void)
 		{
 			for (size_type n = 0; n < _size; n++)
-				allocator_type().destroy(&_data[n]);
+				_alloc.destroy(&_data[n]);
 			_size = 0;
 		}
 
@@ -289,7 +309,7 @@ namespace ft
 		void destroy(void)
 		{
 			this->clear();
-			allocator_type().deallocate(_data, _capacity);
+			_alloc.deallocate(_data, _capacity);
 			this->_size = 0;
 			this->_capacity = 0;
 		}
