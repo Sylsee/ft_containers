@@ -26,12 +26,12 @@ namespace ft
 	 * @tparam T The type of the elements stores in the vector
 	 * @tparam Alloc The allocator type, set by default to std::allocator<T>
 	 */
-	template < class T, class Alloc = std::allocator<T> >
+	template <class T, class Alloc = std::allocator<T>>
 	class vector
 	{
 
 	public:
-	/* Member types */
+		/* Member types */
 		typedef T value_type;
 		typedef Alloc allocator_type;
 		typedef typename allocator_type::reference reference;
@@ -45,78 +45,96 @@ namespace ft
 		// typedef ft::reverse_iterator<iterator> reverse_iterator;
 		// typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	/* Member functions */
+		/* Member functions */
+
 		/**
-		 * @brief Default constructor.
-		 * Constructs an empty container, with no elements.
-		 * 
-		 * @param alloc The allocator type, set  by default to std::allocator<T>
+		 * @brief Default constructor
+		 *
+		 * @param alloc The allocator to use
 		 */
 		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc),
 																		  _size(0),
 																		  _capacity(0),
 																		  _data(NULL)
-		{
-		}
+		{}
 
 		/**
-		 * @brief Fill constructor
-		 * 
-		 * @param n 
-		 * @param val 
-		 * @param alloc 
+		 * @brief Size constructor
+		 *
+		 * @param n The size of the vector
+		 * @param val The value to fill the vector with
+		 * @param alloc The allocator to use
 		 */
 		explicit vector(size_type n, const value_type &val = value_type(),
 						const allocator_type &alloc = allocator_type()) : _alloc(alloc),
 																		  _size(n),
 																		  _capacity(n)
 		{
-			_data = _alloc.allocate(n);
+			this->_data = this->_alloc.allocate(n);
 			while (n--)
-				_alloc.construct(&_data[n], val);
+				this->_alloc.construct(&this->data[n], val);
 		}
 
 		/**
-		 * @brief Construct a new vector object
+		 * @brief Iterator constructor
 		 *
-		 * @tparam InputIterator
-		 * @param first
-		 * @param last
-		 * @param alloc
+		 * @param first The first element of the range to copy
+		 * @param last The last element of the range to copy
+		 * @param alloc The allocator to use
 		 */
-		// template <class InputIterator>
-		// vector(InputIterator first, InputIterator last,
-		// 	   const allocator_type &alloc = allocator_type())
-		// {
-		// }
+		template <class InputIterator>
+		vector(InputIterator first, InputIterator last,
+			   const allocator_type &alloc = allocator_type())
+		{
+			this->_alloc = alloc;
+			if (last - first > this->max_size())
+				throw std::length_error("cannot create ft::vector larger than max_size()");
+
+			this->_size = last - first;
+			this->_capacity = this->_size;
+			this->_data = this->_alloc.allocate(this->_capacity);
+			for (InputIterator it = first; it != last; it++)
+				this->_alloc.construct(&this->_data[it - first], *it);
+		}
 
 		/**
-		 * @brief Construct a new vector object
+		 * @brief Copy constructor
 		 *
-		 * @param x
+		 * @param x Vector to copy
 		 */
 		vector(const vector &x) : _data(NULL)
 		{
 			*this = x;
 		}
 
+		/**
+		 * @brief Destroy the vector object
+		 */
 		~vector(void)
 		{
-			this->destroy();
+			this->_destroy();
 		}
 
+		/**
+		 * @brief Assignement operator
+		 *
+		 * @param rhs Vector to assign
+		 * @return The vector after assignement
+		 */
 		vector &operator=(const vector &rhs)
 		{
 			if (this != &rhs)
 			{
 				if (this->_data)
-					this->destroy();
+					this->_destroy();
+
 				this->_alloc = rhs._alloc;
 				this->_size = rhs._size;
 				this->_capacity = rhs._size;
-				this->_data = _alloc.allocate(this->_capacity);
+
+				this->_data = this->_alloc.allocate(this->_capacity);
 				for (size_type n = 0; n < this->_size; n++)
-					_alloc.construct(&this->_data[n], rhs[n]);
+					this->_alloc.construct(&this->_data[n], rhs[n]);
 			}
 			return *this;
 		}
@@ -127,192 +145,339 @@ namespace ft
 
 		/**
 		 * @brief Returns the number of element in the vector
+		 *
 		 * @return The number of elements in the container.
 		 **/
-		size_type size(void) const { return _size; }
+		size_type size(void) const { return this->_size; }
 
 		/**
 		 * @brief Returns the maximum number of elements that the vector can hold.
+		 *
 		 * @return The maximum number of elements a vector container can hold as content.
 		 **/
-		size_type max_size(void) const { return _alloc.max_size(); }
+		size_type max_size(void) const { return this->_alloc.max_size(); }
 
 		/**
-		 * @brief Returns the size of the storage space currently allocated for the vector, expressed in terms of elements.
-		 * @return The size of the currently allocated storage capacity in the vector, measured in terms of the number elements it can hold.
-		 **/
-		size_type capacity(void) const { return _capacity; }
-
-		/**
-		 * @brief Returns whether the vector is empty (i.e. whether its size is 0).
-		 * @return true if the container size is 0, false otherwise.
-		 **/
-		bool empty(void) const
+		 * @brief Resizes the container so that it contains n elements.
+		 * 
+		 * @param n The new size of the container.
+		 * @param val The value to fill the new elements with (default to value-initialized).;
+		 */
+		void resize (size_type n, value_type val = value_type())
 		{
-			return _size == 0;
+			if (n > this->max_size())
+				throw std::length_error("vector::resize");
+
+			if (n < this->_size)
+			{
+				for (size_type i = n; i < this->_size; i++)
+					this->_alloc.destroy(&this->_data[i]);
+			}
+			else if (n > this->_size)
+			{
+				if (n > this->_capacity)
+				{
+					pointer tmp_data = this->_data;
+					size_type tmp_capacity = this->_capacity;
+
+					this->_capacity = (n > this->_capacity * 2) ? n : this->_capacity * 2;
+					this->_data = this->_alloc.allocate(this->_capacity);
+
+					for (size_type i = 0; i < this->_size; i++) {
+						this->_alloc.construct(&this->_data[i], tmp_data[i]);
+						this->_alloc.destroy(&tmp_data[i]);
+					}
+					this->_alloc.deallocate(tmp_data, tmp_capacity);
+
+					for (size_type i = this->_size; i < this->_capacity; i++)
+						this->_alloc.construct(&this->_data[i], val);
+				}
+				else
+				{
+					for (size_type i = this->_size; i < n; i++)
+						this->_alloc.construct(&this->_data[i], val);
+				}
+				this->_size = n;
+			}
 		}
 
 		/**
-		 * @brief 
-		 * 
-		 * @param n 
+		 * @brief Returns the size of the storage space currently allocated for the vector, expressed in terms of elements.
+		 *
+		 * @return The size of the currently allocated storage capacity in the vector, measured in terms of the number elements it can hold.
+		 **/
+		size_type capacity(void) const { return this->_capacity; }
+
+		/**
+		 * @brief Returns whether the vector is empty (i.e. whether its size is 0).
+		 *
+		 * @return true if the vector is empty, false otherwise.
+		 **/
+		bool empty(void) const { return (this->_size == 0); }
+
+		/**
+		 * @brief Requests that the vector capacity be at least enough to contain n elements.
+		 *
+		 * @param n The minimum number of elements the vector should be able to hold.
 		 */
-		void reserve (size_type n)
+		void reserve(size_type n)
 		{
 			if (n > this->max_size())
-				throw std::length_error("ft::reserve");
+				throw std::length_error("vector::reserve");
+
 			else if (n > this->capacity())
 			{
-				;
+				pointer tmp_data = this->_data;
+
+				this->_data = this->_alloc.allocate(n);
+				for (size_type i = 0; i < this->_size; i++)
+				{
+					this->_alloc.construct(&this->_data[i], tmp_data[i]);
+					this->_alloc.destroy(&tmp_data[i]);
+				}
+				this->_alloc.deallocate(tmp_data, this->_capacity);
+
+				this->_capacity = n;
 			}
 		}
 
 		/* Element access */
 
-		reference operator[](size_type n) { return _data[n]; }
+		/**
+		 * @brief Returns a reference to the element at position n in the vector container.
+		 *
+		 * @param n The position of the element to return.
+		 * @return A reference to the element at position n in the vector container.
+		 **/
+		reference operator[](size_type n) { return this->_data[n]; }
 
-		const_reference operator[](size_type n) const { return _data[n]; }
+		/**
+		 * @brief Returns a const reference to the element at position n in the vector container.
+		 *
+		 * @param n The position of the element to return.
+		 * @return A const reference to the element at position n in the vector container.
+		 **/
+		const_reference operator[](size_type n) const { return this->_data[n]; }
 
+		/**
+		 * @brief Returns a reference to the element at position n in the vector container.
+		 *
+		 * @param n The position of the element to return.
+		 * @return A reference to the element at position n in the vector container.
+		 **/
 		reference at(size_type n)
 		{
-			if (n >= _size)
-				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
-			return _data[n];
+			if (n >= this->_size)
+				throw std::out_of_range("vector::at: n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(this->_size) + ")");
+			return this->_data[n];
 		}
 
+		/**
+		 * @brief Returns a const reference to the element at position n in the vector container.
+		 *
+		 * @param n The position of the element to return.
+		 * @return A const reference to the element at position n in the vector container.
+		 **/
 		const_reference at(size_type n) const
 		{
-			if (n >= _size)
-				throw std::out_of_range("vector::_M_range_check: __n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(_size) + ")");
-			return _data[n];
+			if (n >= this->_size)
+				throw std::out_of_range("vector::at: n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(this->_size) + ")");
+			return this->_data[n];
 		}
 
-		reference front(void) { return *_data; }
+		/**
+		 * @brief Returns a reference to the first element in the vector container.
+		 *
+		 * @return A reference to the first element in the vector container.
+		 **/
+		reference front(void) { return *this->_data; }
 
-		const_reference front(void) const { return *_data; }
+		/**
+		 * @brief Returns a const reference to the first element in the vector container.
+		 *
+		 * @return A const reference to the first element in the vector container.
+		 **/
+		const_reference front(void) const { return *this->_data; }
 
-		reference back(void) { return _data[_size - 1]; }
+		/**
+		 * @brief Returns a reference to the last element in the vector container.
+		 *
+		 * @return A reference to the last element in the vector container.
+		 **/
+		reference back(void) { return this->_data[this->_size - 1]; }
 
-		const_reference back(void) const { return _data[_size - 1]; }
+		/**
+		 * @brief Returns a const reference to the last element in the vector container.
+		 *
+		 * @return A const reference to the last element in the vector container.
+		 **/
+		const_reference back(void) const { return this->_data[this->_size - 1]; }
 
 		/* Modifiers */
 
-		/*
-			bad_alloc: no realloc
-			decrease capacity and size: no realloc
-			increase capacity and size: realloc
-		*/
+		/**
+		 * @brief Assigns new contents to the vector, replacing its current contents
+		 * and modifying its size and capacity accordingly.
+		 *
+		 * @tparam InputIterator The type of the iterator used to read the input data.
+		 * @param first The iterator to the first element in the range of elements to be copied.
+		 * @param last The iterator to the lasr element in the range of elements to be copied.
+		 */
+		template <class InputIterator>
+		void assign(InputIterator first, InputIterator last)
+		{
+			if (last - first > this->max_size())
+				throw std::length_error("cannot create ft::vector larger than max_size()");
+
+			if (last - first > this->_capacity)
+			{
+				pointer tmp_data = this->_data;
+
+				this->_data = this->_alloc.allocate(last - first);
+				for (size_type i = 0; i < this->_size; i++) {
+					this->_alloc.construct(&this->_data[i], *(first++));
+					this->_alloc.destroy(&tmp_data[i]);
+				}
+				this->_alloc.deallocate(tmp_data, this->_capacity);
+				for (InputIterator it = first; it != last; it++)
+					this->_alloc.construct(&this->_data[it - first], *it);
+
+				this->_size = last - first;
+				this->_capacity = last - first;
+			}
+			else
+			{
+				for (InputIterator it = first; it != last; it++) {
+					this->_alloc.destroy(&this->_data[it - first]);
+					this->_alloc.construct(&this->_data[it - first], *it);
+				}
+				this->_size = last - first;
+			}
+		}
 
 		/**
-		 * @brief
+		 * @brief Assigns new contents to the vector, replacing its current contents
+		 * and modifying its size and capacity accordingly.
 		 *
-		 * @param n
-		 * @param val
+		 * @param n The new size of the vector.
+		 * @param val The value to fill the vector with.
 		 */
 		void assign(size_type n, const value_type &val)
 		{
 			if (n > this->max_size())
 				throw std::length_error("cannot create ft::vector larger than max_size()");
 
-			if (n > this->_capacity) {
-				for (size_type i = 0; i < this->_size; i++)
-					_alloc.destroy(&_data[i]);
-				_alloc.deallocate(_data, this->_capacity);
+			if (n > this->_capacity)
+			{
+				pointer tmp_data = this->_data;
 
+				this->_data = this->_alloc.allocate(n);
+				for (size_type i = 0; i < this->_size; i++)
+				{
+					this->_alloc.destroy(&tmp_data[i]);
+					this->_alloc.construct(&this->_data[i], val);
+				}
+				this->_alloc.deallocate(tmp_data, this->_capacity);
+				for (size_type i = this->_size; i < n; i++)
+					this->_alloc.construct(&this->_data[i], val);
+
+				this->_size = n;
 				this->_capacity = n;
-				this->_data = _alloc.allocate(n);
 			}
-			else {
-				for (size_type i = 0; i < n; i++) {
-					_alloc.destroy(&_data[i]);
-					_alloc.construct(&_data[i], val);
+			else
+			{
+				for (size_type i = 0; i < n; i++)
+				{
+					this->_alloc.destroy(&this->_data[i]);
+					this->_alloc.construct(&this->_data[i], val);
 				}
 				this->_size = n;
 			}
 		}
 
-		void push_back (const value_type& val)
+		/**
+		 * @brief Insert new elements at the end of the vector,
+		 * increasing its size accordingly.
+		 *
+		 * @param val The value to fill the vector with.
+		 */
+		void push_back(const value_type &val)
 		{
 			if (this->_size + 1 > this->max_size())
 				throw std::length_error("cannot create ft::vector larger than max_size()");
 
-			if ( this->_size + 1 > this->_capacity) {
-				value_type *tmp_data = this->_data;
+			if (this->_size + 1 > this->_capacity)
+				this->reserve(++this->_capacity);
 
-				this->_capacity++;
-				this->_data = _alloc.allocate(this->_capacity);
-
-				for (size_type i = 0; i < this->_size; i++) {
-					_alloc.construct(&this->_data[i], tmp_data[i]);
-					_alloc.destroy(tmp_data[i]);
-				}
-
-				_alloc.construct(&this->_data[this->_size], val);
-				this->_size++;
-
-				_alloc.deallocate(tmp_data, this->_capacity - 1);
-			}
-			else {
-				_alloc.construct(&this->_data[this->_size], val);
-				this->_size++;
-			}
+			this->_alloc.construct(&this->_data[this->_size++], val);
 		}
 
+		/**
+		 * @brief Removes the last element in the vector, reducing its size by one.
+		 */
+		void pop_back(void)
+		{
+			if (this->_size != 0)
+				this->_alloc.destroy(&this->_data[--this->_size]);
+		}
+
+		/**
+		 * @brief Swaps the contents of two vectors.
+		 *
+		 * @param x The vector to swap with.
+		 */
 		void swap(vector &x)
 		{
-			if (*this == x)
+			if (this == &x)
 				return;
 
-			value_type *tmp_data = this->_data;
-			allocator_type tmp_alloc = this->_alloc;
-			size_type tmp_size = this->_size;
-			size_type tmp_capacity = this->_capacity;
-
-			this->_data = x._data;
-			this->_alloc = x._alloc;
-			this->_size = x._size;
-			this->_capacity = x._capacity;
-
-			x._data = tmp_data;
-			x._alloc = tmp_alloc;
-			x._size = tmp_size;
-			x._capacity = tmp_capacity;
+			ft::swap(this->_data, x._data);
+			ft::swap(this->_size, x._size);
+			ft::swap(this->_capacity, x._capacity);
+			ft::swap(this->_alloc, x._alloc);
 		}
 
+		/**
+		 * @brief Clears all elements from the vector.
+		 */
 		void clear(void)
 		{
-			for (size_type n = 0; n < _size; n++)
-				_alloc.destroy(&_data[n]);
-			_size = 0;
+			for (size_type n = 0; n < this->_size; n++)
+				this->_alloc.destroy(&this->data[n]);
+			this->_size = 0;
 		}
 
 		/* Allocator */
 
 		/**
 		 * @brief Returns a copy of the allocator object associated with the vector.
+		 *
 		 * @return The allocator.
 		 **/
-		allocator_type get_allocator(void) const { return _alloc; }
+		allocator_type get_allocator(void) const { return this->_alloc; }
 
 	private:
-	/* Attributes */
+		/* Attributes */
 		allocator_type _alloc;
-		value_type *_data;
+		pointer _data;
 		size_type _size;
 		size_type _capacity;
 
-	/* Private members functions */
+		/* Private members functions */
 
 		/**
 		 * @brief Free all memory usage of the vector
 		 */
-		void destroy(void)
+		void _destroy(void)
 		{
 			this->clear();
-			_alloc.deallocate(_data, _capacity);
+			this->_alloc.deallocate(this->_data, this->_capacity);
 			this->_size = 0;
 			this->_capacity = 0;
+			this->_alloc = NULL;
+			this->_data = NULL;
 		}
+
 	};
 
 } /* namespace ft */

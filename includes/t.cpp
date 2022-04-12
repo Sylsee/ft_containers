@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 19:06:17 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/11 17:08:24 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/04/13 00:43:15 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,20 @@ void print(ft::vector<int>& v)
 
 int main(void)
 {
-	ft::vector<int> v(SIZE, 12);
+	ft::vector<int> v(1,0);
 	print(v);
 
-	v.reserve(1000);
-	print(v);
+	try
+	{
+		v.pop_back();
+		print(v);
+		v.pop_back();
+	}
+	catch (std::exception const & e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+//	print(v);
 
 	// for (int i = 0; i < 1; i++)
 		// v.push_back(i);
