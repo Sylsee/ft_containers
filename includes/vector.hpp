@@ -26,7 +26,7 @@ namespace ft
 	 * @tparam T The type of the elements stores in the vector
 	 * @tparam Alloc The allocator type, set by default to std::allocator<T>
 	 */
-	template <class T, class Alloc = std::allocator<T>>
+	template < class T, class Alloc = std::allocator<T> >
 	class vector
 	{
 
@@ -72,7 +72,7 @@ namespace ft
 		{
 			this->_data = this->_alloc.allocate(n);
 			while (n--)
-				this->_alloc.construct(&this->data[n], val);
+				this->_alloc.construct(&this->_data[n], val);
 		}
 
 		/**
@@ -84,17 +84,16 @@ namespace ft
 		 */
 		template <class InputIterator>
 		vector(InputIterator first, InputIterator last,
-			   const allocator_type &alloc = allocator_type())
+			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
 		{
-			this->_alloc = alloc;
-			if (last - first > this->max_size())
+			if (static_cast<size_type>(last - first) > this->max_size())
 				throw std::length_error("cannot create ft::vector larger than max_size()");
 
 			this->_size = last - first;
 			this->_capacity = this->_size;
 			this->_data = this->_alloc.allocate(this->_capacity);
 			for (InputIterator it = first; it != last; it++)
-				this->_alloc.construct(&this->_data[it - first], *it);
+				this->_alloc.construct(&this->_data[it - first], it);
 		}
 
 		/**
@@ -443,7 +442,7 @@ namespace ft
 		void clear(void)
 		{
 			for (size_type n = 0; n < this->_size; n++)
-				this->_alloc.destroy(&this->data[n]);
+				this->_alloc.destroy(&this->_data[n]);
 			this->_size = 0;
 		}
 
@@ -474,7 +473,6 @@ namespace ft
 			this->_alloc.deallocate(this->_data, this->_capacity);
 			this->_size = 0;
 			this->_capacity = 0;
-			this->_alloc = NULL;
 			this->_data = NULL;
 		}
 

@@ -12,7 +12,7 @@
 
 # [ VARIABLES ] #
 
-NAME	=	test
+NAME	=	containers_test
 RM		=	/bin/rm -rf
 MAKE	=	make
 
@@ -74,11 +74,16 @@ fclean:		clean
 			@$(RM) $(NAME)
 			@printf "$(_RED) '$(NAME)' has been deleted. $(_END)🗑️\n"
 
-re:			fclean
-			@make -s -j
+re:			fclean all
 
 valgrind: 	all
 			@$(VALGRIND) $(VFLAGS) ./$(NAME)
+
+test:		$(NAME)
+			@make -s -j clean
+			@mv $(NAME) $(NAME)_std
+			@$(CC) $(CFLAGS) -DFT main.cpp -o $^
+			@printf "$(_GREEN) Binary '$(NAME)' created. $(_END)✅\n"
 
 # [ PHONY ] #
 
