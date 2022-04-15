@@ -76,25 +76,25 @@ namespace ft
 		}
 
 		/**
-		 * @brief Iterator constructor
+		 * @brief Range constructor
 		 *
 		 * @param first The first element of the range to copy
 		 * @param last The last element of the range to copy
 		 * @param alloc The allocator to use
 		 */
-		template <class InputIterator>
-		vector(InputIterator first, InputIterator last,
-			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
-		{
-			if (static_cast<size_type>(last - first) > this->max_size())
-				throw std::length_error("cannot create ft::vector larger than max_size()");
-
-			this->_size = last - first;
-			this->_capacity = this->_size;
-			this->_data = this->_alloc.allocate(this->_capacity);
-			for (InputIterator it = first; it != last; it++)
-				this->_alloc.construct(&this->_data[it - first], it);
-		}
+		// template <class InputIterator>
+			// vector(InputIterator first, InputIterator last,
+				//    const allocator_type &alloc = allocator_type()) : _alloc(alloc)
+		// {
+			// if (static_cast<size_type>(last - first) > this->max_size())
+				// throw std::length_error("cannot create ft::vector larger than max_size()");
+// 
+			// this->_size = last - first;
+			// this->_capacity = this->_size;
+			// this->_data = this->_alloc.allocate(this->_capacity);
+			// for (InputIterator it = first; it != last; it++)
+				// this->_alloc.construct(&this->_data[it - first], it);
+		// }
 
 		/**
 		 * @brief Copy constructor

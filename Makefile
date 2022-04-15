@@ -6,13 +6,13 @@
 #    By: arguilla <arguilla@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/13 19:04:24 by spoliart          #+#    #+#              #
-#    Updated: 2022/03/25 21:25:51 by spoliart         ###   ########.fr        #
+#    Updated: 2022/04/16 01:39:20 by spoliart         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # [ VARIABLES ] #
 
-NAME	=	containers_test
+NAME	=	containers
 RM		=	/bin/rm -rf
 MAKE	=	make
 
@@ -71,20 +71,39 @@ clean:
 			@printf "$(_RED) '$O' has been deleted. $(_END)🗑️\n"
 
 fclean:		clean
-			@$(RM) $(NAME)
-			@printf "$(_RED) '$(NAME)' has been deleted. $(_END)🗑️\n"
+			@$(RM) $(LOG) $(BIN) $(NAME)
+			@printf "$(_RED) '$(LOG)', '$(BIN)' and '$(NAME)' has been deleted. $(_END)🗑️\n"
 
 re:			fclean all
 
 valgrind: 	all
 			@$(VALGRIND) $(VFLAGS) ./$(NAME)
 
-test:		$(NAME)
-			@make -s -j clean
-			@mv $(NAME) $(NAME)_std
-			@$(CC) $(CFLAGS) -DFT main.cpp -o $^
-			@printf "$(_GREEN) Binary '$(NAME)' created. $(_END)✅\n"
+# [ DEBUG ] #
+
+LOG = log/
+BIN = bin/
+FT_NAME = ft_containers
+STD_NAME = std_containers
+
+debug:
+			@mkdir -p $(BIN)
+			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS main.cpp -o $(BIN)$(STD_NAME)
+			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS -DFT main.cpp -o $(BIN)$(FT_NAME)
+			@printf "$(_GREEN) '$(FT_NAME)' and '$(STD_NAME)' created into '$(BIN)'. $(_END)✅\n"
+			@mkdir -p $(LOG)
+			@$(BIN)$(STD_NAME) > $(LOG)$(STD_NAME).log
+			@$(BIN)$(FT_NAME) > $(LOG)$(FT_NAME).log
+			@echo
+			@diff --color $(LOG)$(STD_NAME).log $(LOG)$(FT_NAME).log 2>&1 | tee $(LOG)diff.log
+			@if [ -s $(LOG)diff.log ]; then\
+				printf "\n$(_RED) Diff found. $(_END)\n";\
+			else\
+				printf "$(_GREEN) Tests passed. $(_END)✅\n\n";\
+				$(RM) $(LOG);\
+				printf "$(_RED) '$(LOG)' has been deleted. $(_END)✅\n";\
+			fi
 
 # [ PHONY ] #
 
-.PHONY:	all clean fclean re valgrind
+.PHONY:	all clean fclean re valgrind debug
