@@ -18,7 +18,7 @@
 
 namespace ft
 {
-	template <typename T>
+	template < typename T >
 	std::string to_string(T n)
 	{
 		std::ostringstream ss;
@@ -32,7 +32,7 @@ namespace ft
 	 * @param a The first element
 	 * @param b The second element
 	 */
-	template <typename T>
+	template < typename T >
 	void swap(T &a, T &b)
 	{
 		T tmp = a;

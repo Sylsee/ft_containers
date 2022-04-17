@@ -42,26 +42,30 @@ std::ostream&	operator<<(std::ostream& o, const Test& t)
 template < typename T >
 void print(ft::vector< T >& v)
 {
-	std::cout << "v.back(): " << v.back() << std::endl
-			  << "v.front(): " << v.front() << std::endl
-			  << "v.size(): " << v.size() << std::endl
-			  << "v.capacity(): " << v.capacity() << std::endl
-			  << "v.max_size(): " << v.max_size() << std::endl;
+	std::cout << "front: " << v.front() << std::endl
+			  << "back: " << v.back() << std::endl
+			  << "size: " << v.size() << std::endl
+			  << "capacity: " << v.capacity() << std::endl
+			  << "empty: " << v.empty() << std::endl
+			  << "max_size: " << v.max_size() << std::endl;
 #ifndef NO_DISPLAY_ADDRESS
-	std::cout << "address of v: " << &v << std::endl;
+	std::cout << "address: " << &v << std::endl;
 #endif
 
+	std::cout << "content: [";
 	size_t max = v.size();
-	for (size_t i = 0; i < max && i < 30; i++)
-		std::cout << v[i] << std::endl;
-	std::cout << std::endl;
+	for (size_t i = 0; i < max; i++) {
+		std::cout << v[i];
+		if (i < max - 1)
+			std::cout << ", ";
+	}
+	std::cout << "]" << std::endl << std::endl;
 }
 
 int main(void)
 {
-	ft::vector<Test> v(2);
+	ft::vector<int> v(2, 8);
 	print(v);
-
 
 	try
 	{

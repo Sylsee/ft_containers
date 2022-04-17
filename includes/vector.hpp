@@ -16,6 +16,7 @@
 #include <memory>
 #include <stdexcept>
 #include "utils.hpp"
+#include "iterator.hpp"
 
 namespace ft
 {
@@ -40,8 +41,8 @@ namespace ft
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef typename allocator_type::difference_type difference_type;
 		typedef typename allocator_type::size_type size_type;
-		// typedef ft::random_access_iterator<value_type> iterator;
-		// typedef ft::random_access_iterator<const value_type> const_iterator;
+		typedef ft::random_access_iterator<value_type> iterator;
+		typedef ft::random_access_iterator<const value_type> const_iterator;
 		// typedef ft::reverse_iterator<iterator> reverse_iterator;
 		// typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -52,11 +53,12 @@ namespace ft
 		 *
 		 * @param alloc The allocator to use
 		 */
-		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc),
-																		  _size(0),
-																		  _capacity(0),
-																		  _data(NULL)
-		{}
+		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc)
+		{
+			this->_size = 0;
+			this->_capacity = 0;
+			this->_data = NULL;
+		}
 
 		/**
 		 * @brief Size constructor
@@ -457,10 +459,10 @@ namespace ft
 
 	private:
 		/* Attributes */
-		allocator_type _alloc;
-		pointer _data;
-		size_type _size;
-		size_type _capacity;
+		allocator_type	_alloc;
+		pointer			_data;
+		size_type		_size;
+		size_type		_capacity;
 
 		/* Private members functions */
 
