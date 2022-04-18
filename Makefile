@@ -26,7 +26,7 @@ _YELLOW	=	\e[33m
 # [ COMPILATION VARIABLES ]#
 
 CC		=	c++
-CFLAGS	=	-Wall -Wextra -Werror -std=c++98
+CFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g3
 
 # [ VALGRIND VARIABLES ] #
 
@@ -88,8 +88,8 @@ STD_NAME = std_containers
 
 debug:
 			@mkdir -p $(BIN)
-			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS main.cpp -o $(BIN)$(STD_NAME)
-			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS -DFT main.cpp -o $(BIN)$(FT_NAME)
+			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS -DSTD main.cpp -o $(BIN)$(STD_NAME)
+			@$(CC) $(CFLAGS) -DNO_DISPLAY_ADDRESS main.cpp -o $(BIN)$(FT_NAME)
 			@printf "$(_GREEN) '$(FT_NAME)' and '$(STD_NAME)' created into '$(BIN)'. $(_END)✅\n"
 			@mkdir -p $(LOG)
 			@$(BIN)$(STD_NAME) > $(LOG)$(STD_NAME).log
@@ -97,11 +97,9 @@ debug:
 			@echo
 			@diff --color $(LOG)$(STD_NAME).log $(LOG)$(FT_NAME).log 2>&1 | tee $(LOG)diff.log
 			@if [ -s $(LOG)diff.log ]; then\
-				printf "\n$(_RED) Diff found. $(_END)\n";\
+				printf "\n$(_RED) Diff found, log file in log dir. $(_END)❌\n";\
 			else\
-				printf "$(_GREEN) Tests passed. $(_END)✅\n\n";\
-				$(RM) $(LOG);\
-				printf "$(_RED) '$(LOG)' has been deleted. $(_END)✅\n";\
+				printf "$(_GREEN) Tests passed. (log file in log dir) $(_END)✅\n";\
 			fi
 
 # [ PHONY ] #
