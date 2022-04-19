@@ -13,8 +13,6 @@
 #ifndef TRAITS_HPP
 #define TRAITS_HPP
 
-#include <uchar.h>
-
 namespace ft
 {
 

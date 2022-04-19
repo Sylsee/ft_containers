@@ -90,14 +90,14 @@ namespace ft
 			   InputIterator last,
 			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
 		{
-		if (static_cast<size_type>(last - first) > this->max_size())
-		throw std::length_error("cannot create ft::vector larger than max_size()");
-		
-		this->_size = last - first;
-		this->_capacity = this->_size;
-		this->_data = this->_alloc.allocate(this->_capacity);
-		for (InputIterator it = first; it != last; it++)
-		this->_alloc.construct(&this->_data[it - first], it);
+			if (static_cast<size_type>(last - first) > this->max_size())
+			throw std::length_error("cannot create ft::vector larger than max_size()");
+
+			this->_size = last - first;
+			this->_capacity = this->_size;
+			this->_data = this->_alloc.allocate(this->_capacity);
+			for (InputIterator it = first; it != last; it++)
+			this->_alloc.construct(&this->_data[it - first], it);
 		}
 
 		/**
@@ -596,7 +596,7 @@ namespace ft
 					 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 					 InputIterator last)
 		{
-			if (position - this->begin() > this->_size)
+			if (static_cast<size_type>(last - first) > this->max_size || position - this->begin() > this->_size)
 				throw (std::length_error("vector::insert"));
 
 			size_type n = last - first;
