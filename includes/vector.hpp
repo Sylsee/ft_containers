@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include "traits.hpp"
 #include "utils.hpp"
 #include "iterator.hpp"
 
@@ -84,19 +85,20 @@ namespace ft
 		 * @param last The last element of the range to copy
 		 * @param alloc The allocator to use
 		 */
-		// template <class InputIterator>
-		// vector(InputIterator first, InputIterator last,
-		//    const allocator_type &alloc = allocator_type()) : _alloc(alloc)
-		// {
-		// if (static_cast<size_type>(last - first) > this->max_size())
-		// throw std::length_error("cannot create ft::vector larger than max_size()");
-		//
-		// this->_size = last - first;
-		// this->_capacity = this->_size;
-		// this->_data = this->_alloc.allocate(this->_capacity);
-		// for (InputIterator it = first; it != last; it++)
-		// this->_alloc.construct(&this->_data[it - first], it);
-		// }
+		template <class InputIterator>
+		vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
+			   InputIterator last,
+			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
+		{
+		if (static_cast<size_type>(last - first) > this->max_size())
+		throw std::length_error("cannot create ft::vector larger than max_size()");
+		
+		this->_size = last - first;
+		this->_capacity = this->_size;
+		this->_data = this->_alloc.allocate(this->_capacity);
+		for (InputIterator it = first; it != last; it++)
+		this->_alloc.construct(&this->_data[it - first], it);
+		}
 
 		/**
 		 * @brief Copy constructor
@@ -514,8 +516,126 @@ namespace ft
 		 */
 		iterator insert(iterator position, const value_type &val)
 		{
-			(void)val;
-			return position;
+			if (this->_size + 1 > this->max_size() || position - this->begin() > this->_size)
+				throw (std::length_error("vector::insert"));
+
+			if (this->_size + 1 > this->_capacity) {
+				size_type new_capacity = this->_capacity ? this->_capacity * 2 : 1;
+				if (new_capacity > this->max_size())
+					throw (std::length_error("vector::insert"));
+
+				pointer tmp_data = this->_alloc.allocate(new_capacity);
+				for (size_type i = 0; i < position - this->begin(); i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i]);
+					this->_alloc.destroy(&this->_data[i]);
+				}
+				this->_alloc.construct(&tmp_data[position - this->begin()], val);
+				for (size_type i = position - this->begin() + 1; i < this->_size + 1; i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i - 1]);
+					this->_alloc.destroy(&this->_data[i - 1]);
+				}
+				this->_alloc.deallocate(this->_data, this->_capacity);
+
+				this->_data = tmp_data;
+				this->_capacity = new_capacity;
+				this->_size++;
+			}
+			else {
+				for (size_type i = this->end() - this->begin() + 1; i > position - this->begin() + 1; i--) {
+					this->_alloc.construct(&this->_data[i], this->_data[i - 1]);
+					this->_alloc.destroy(&this->_data[i - 1]);
+				}
+				this->_alloc.construct(&this->_data[position - this->begin()], val);
+
+				this->_size++;
+			}
+			return (iterator(this->_data + (position - this->begin())));
+		}
+
+		void insert(iterator position, size_type n, const value_type& val)
+		{
+			if (position - this->begin() > this->_size)
+				throw (std::length_error("vector::insert"));
+
+			if (this->_size + n > this->_capacity) {
+				size_type new_capacity = ft::max(this->_capacity * 2, this->_size + n);
+				if (new_capacity > this->max_size())
+					throw (std::length_error("vector::insert"));
+
+				pointer tmp_data = this->_alloc.allocate(new_capacity);
+				for (size_type i = 0; i < position - this->begin(); i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i]);
+					this->_alloc.destroy(&this->_data[i]);
+				}
+				for (size_type i = position - this->begin(); i < position - this->begin() + n; i++)
+					this->_alloc.construct(&tmp_data[i], val);
+				for (size_type i = position - this->begin() + n; i < this->_size + n; i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i - n]);
+					this->_alloc.destroy(&this->_data[i - n]);
+				}
+				this->_alloc.deallocate(this->_data, this->_capacity);
+
+				this->_data = tmp_data;
+				this->_size += n;
+				this->_capacity = new_capacity;
+			}
+			else if (n > 0) {
+				for (size_type i = this->end() - this->begin() + n; i > position - this->begin() + n; i--) {
+					this->_alloc.construct(&this->_data[i], this->_data[i - n]);
+					this->_alloc.destroy(&this->_data[i - n]);
+				}
+				for (size_type i = position - this->begin(); i < position - this->begin() + n; i++)
+					this->_alloc.construct(&this->_data[i], val);
+
+				this->_size += n;
+			}
+		}
+
+		template <class InputIterator>
+		void insert (iterator position,
+					 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
+					 InputIterator last)
+		{
+			if (position - this->begin() > this->_size)
+				throw (std::length_error("vector::insert"));
+
+			size_type n = last - first;
+			if (this->_size + n > this->_capacity) {
+				size_type new_capacity = ft::max(this->_capacity * 2, this->_size + n);
+				if (new_capacity > this->max_size())
+					throw (std::length_error("vector::insert"));
+
+				pointer tmp_data = this->_alloc.allocate(new_capacity);
+				for (size_type i = 0; i < position - this->begin(); i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i]);
+					this->_alloc.destroy(&this->_data[i]);
+				}
+				for (size_type i = position - this->begin(); first != last; i++) {
+					this->_alloc.construct(&this->_data[i], first);
+					first++;
+				}
+				for (size_type i = position - this->begin() + n; i < this->_size + n; i++) {
+					this->_alloc.construct(&tmp_data[i], this->_data[i - n]);
+					this->_alloc.destroy(&this->_data[i - n]);
+				}
+				this->_alloc.deallocate(this->_data, this->_capacity);
+
+				this->_data = tmp_data;
+				this->_size += n;
+				this->_capacity = new_capacity;
+			}
+			else if (n > 0) {
+				for (size_type i = this->end() - this->begin() + n; i > position - this->begin() + n; i--) {
+					this->_alloc.construct(&this->_data[i], this->_data[i - n]);
+					this->_alloc.destroy(&this->_data[i - n]);
+				}
+				for (size_type i = position - this->begin(); first != last; i++) {
+					this->_alloc.construct(&this->_data[i], first);
+					first++;
+				}
+
+				this->_size += n;
+			}
 		}
 
 		/**

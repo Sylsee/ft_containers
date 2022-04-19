@@ -12,15 +12,19 @@
 
 #include <iostream>
 
-#ifndef STD
+#ifdef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
+	#include <iterator>
+	#include <type_traits>
 	namespace ft = std;
 #else
 	#include "includes/vector.hpp"
-	#include "ft_containers/containers/vector.hpp"
+	#include "includes/traits.hpp"
+	// #include "ft_containers/containers/vector.hpp"
 #endif
+#include <typeinfo>
 
 class Test
 {
@@ -47,6 +51,7 @@ void print(ft::vector< T >& v)
 			//   << "back: " << v.back() << std::endl
 			  << "size: " << v.size() << std::endl
 			  << "capacity: " << v.capacity() << std::endl
+			  << "max_size: " << v.max_size() << std::endl
 			  << "empty: " << v.empty() << std::endl;
 #ifndef NO_DISPLAY_ADDRESS
 	std::cout << "address: " << &v[0] << std::endl;
@@ -63,13 +68,13 @@ void print(ft::vector< T >& v)
 
 int main(void)
 {
-	ft::vector<int> v(10, 8);
-	print(v);
-
 	try
 	{
-		ft::vector<int>::iterator it = v.begin() + 1;
-		v.insert(it, 42);
+		ft::vector<int> v(10, 8);
+		print(v);
+
+		ft::vector<int>::iterator it = v.begin() + 5;
+		v.insert(it, 0, 42);
 		print(v);
 	}
 	catch (std::exception const & e)

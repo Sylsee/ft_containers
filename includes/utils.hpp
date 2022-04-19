@@ -40,6 +40,19 @@ namespace ft
 		b = tmp;
 	}
 
+	/**
+	 * @brief Returns the largest of a and b.
+	 *
+	 * @param a The first element
+	 * @param b The second element
+	 * @return The max of a and b
+	 */
+	template < typename T >
+	T	max(T a, T b)
+	{
+		return (a > b) ? a : b;
+	}
+
 }
 
 #endif /* UTILS_HPP */
