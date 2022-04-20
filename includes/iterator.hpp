@@ -345,16 +345,6 @@ namespace ft
 		return (ft::random_access_iterator<T>(lhs - rhs._ptr));
 	}
 
-/*
-	template <class Iterator>
-	class reverse_iterator:
-	{
-	public:
-
-		typedef Iterator iterator_type;
-		typedef iterator_traits<Iterator>::iterator
-	};
-*/
 }
 
 #endif /* ITERATOR_HPP */

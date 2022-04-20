@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#ifdef STD
+#ifndef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
@@ -74,7 +74,9 @@ int main(void)
 		print(v);
 
 		ft::vector<int>::iterator it = v.begin() + 5;
-		v.insert(it, 0, 42);
+		it = v.insert(it, 42);
+		print(v);
+		v.erase(it);
 		print(v);
 	}
 	catch (std::exception const & e)

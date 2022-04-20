@@ -91,13 +91,13 @@ namespace ft
 			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
 		{
 			if (static_cast<size_type>(last - first) > this->max_size())
-			throw std::length_error("cannot create ft::vector larger than max_size()");
+				throw std::length_error("cannot create ft::vector larger than max_size()");
 
 			this->_size = last - first;
 			this->_capacity = this->_size;
 			this->_data = this->_alloc.allocate(this->_capacity);
 			for (InputIterator it = first; it != last; it++)
-			this->_alloc.construct(&this->_data[it - first], it);
+				this->_alloc.construct(&this->_data[it - first], it);
 		}
 
 		/**
@@ -552,6 +552,15 @@ namespace ft
 			return (iterator(this->_data + (position - this->begin())));
 		}
 
+		/**
+		 * @brief The vector is extended by inserting new elements before the element at the specified position,
+		 * increasing the container size by the number of elements inserted.
+		 *
+		 * @param position Position in the vector where the new elements are inserted.
+		 * @param n Number of elements to be inserted.
+		 * @param val Value to be copied (or moved) to the inserted elements.
+		 * @return iterator An iterator that points to the first of the newly inserted elements.
+		 */
 		void insert(iterator position, size_type n, const value_type& val)
 		{
 			if (position - this->begin() > this->_size)
@@ -591,8 +600,17 @@ namespace ft
 			}
 		}
 
+		/**
+		 * @brief The vector is extended by inserting new elements before the element at the specified position,
+		 * effectively increasing the container size by the number of elements inserted.
+		 *
+		 * @param position Position in the vector where the new elements are inserted.
+		 * @param first Iterator pointing to the first element to be inserted.
+		 * @param last Iterator pointing to the element after the last element to be inserted.
+		 * @return iterator An iterator that points to the first of the newly inserted elements.
+		 */
 		template <class InputIterator>
-		void insert (iterator position,
+		void insert(iterator position,
 					 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 					 InputIterator last)
 		{
@@ -636,6 +654,53 @@ namespace ft
 
 				this->_size += n;
 			}
+		}
+
+		/**
+		 * @brief Removes one element from the vector.
+		 * 
+		 * @param position Position of the element to be removed.
+		 * @return iterator An iterator that points to the next element in the vector.
+		 */
+		iterator erase(iterator position)
+		{
+			if (position - this->begin() > this->_size)
+				throw (std::length_error("vector::erase"));
+
+			this->_alloc.destroy(&this->_data[position - this->begin()]);
+			for (size_type i = position - this->begin(); i + 1 < this->_size; i++) {
+				this->_alloc.construct(&this->_data[i], this->_data[i + 1]);
+				this->_alloc.destroy(&this->_data[i + 1]);
+			}
+
+			this->_size--;
+			return iterator(position - this->begin());
+		}
+
+		/**
+		 * @brief Removes a range of elements from the vector.
+		 * 
+		 * @param first Iterator pointing to the first element to be removed.
+		 * @param last Iterator pointing to the element after the last element to be removed.
+		 * @return iterator An iterator that points to the next element in the vector.
+		 */
+		iterator erase(iterator first, iterator last)
+		{
+			size_type n = last - first;
+			for (size_type i = first - this->begin(); i < last - this->begin(); i++) {
+				this->_alloc.destroy(&this->_data[i]);
+				if (i + n < this->_size) {
+					this->_alloc.construct(&this->_data[i], this->_data[i + n]);
+					this->_alloc.destroy(&this->_data[i + n]);
+				}
+			}
+			for (size_type i = last - this->begin(); i + n < this->_size) {
+				this->_alloc.construct(&this->_data[i], this->_data[i + n]);
+				this->_alloc.destroy(&this->_data[i + n]);
+			}
+
+			this->_size -= n;
+			return iterator(first - this->begin());
 		}
 
 		/**
