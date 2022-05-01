@@ -21,8 +21,9 @@
 	namespace ft = std;
 #else
 	#include "includes/vector.hpp"
+	#include "includes/iterator.hpp"
 	#include "includes/traits.hpp"
-	// #include "ft_containers/containers/vector.hpp"
+	#include "includes/utils.hpp"
 #endif
 #include <typeinfo>
 
@@ -73,10 +74,15 @@ int main(void)
 		ft::vector<int> v(10, 8);
 		print(v);
 
-		ft::vector<int>::iterator it = v.begin() + 5;
-		it = v.insert(it, 42);
-		print(v);
-		v.erase(it);
+		ft::vector<int>::iterator it = v.begin() + 2;
+		ft::vector<int>::iterator it2(it);
+
+		// std::cout << it.base() << std::endl;
+		it = v.erase(it, it2);
+		while (it != v.end()){
+			std::cout << *it << std::endl;
+			it++;
+		}
 		print(v);
 	}
 	catch (std::exception const & e)

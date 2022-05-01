@@ -15,9 +15,9 @@
 
 #include <memory>
 #include <stdexcept>
+#include "iterator.hpp"
 #include "traits.hpp"
 #include "utils.hpp"
-#include "iterator.hpp"
 
 namespace ft
 {
@@ -42,10 +42,10 @@ namespace ft
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef typename allocator_type::difference_type difference_type;
 		typedef typename allocator_type::size_type size_type;
-		typedef ft::random_access_iterator<value_type> iterator;
-		typedef ft::random_access_iterator<const value_type> const_iterator;
-		// typedef ft::reverse_iterator<iterator> reverse_iterator;
-		// typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+		typedef ft::random_access_iterator<pointer> iterator;
+		typedef ft::random_access_iterator<const_pointer> const_iterator;
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 		/* Member functions */
 
@@ -189,40 +189,40 @@ namespace ft
 		 *
 		 * @return A reverse iterator to the beginning of the vector
 		 */
-		// reverse_iterator rbegin(void)
-		// {
-		// return reverse_iterator(this->end());
-		// }
+		reverse_iterator rbegin(void)
+		{
+			return reverse_iterator(this->end());
+		}
 
 		/**
 		 * @brief Return a const reverse iterator to the beginning of the vector
 		 *
 		 * @return A const reverse iterator to the beginning of the vector
 		 */
-		// const_reverse_iterator rbegin(void) const
-		// {
-		// return const_reverse_iterator(this->end());
-		// }
+		const_reverse_iterator rbegin(void) const
+		{
+			return const_reverse_iterator(this->end());
+		}
 
 		/**
 		 * @brief Return a reverse iterator to the end of the vector
 		 *
 		 * @return A reverse iterator to the end of the vector
 		 */
-		// reverse_iterator rend(void)
-		// {
-		// return reverse_iterator(this->begin());
-		// }
+		reverse_iterator rend(void)
+		{
+			return reverse_iterator(this->begin());
+		}
 
 		/**
 		 * @brief Return a const reverse iterator to the end of the vector
 		 *
 		 * @return A const reverse iterator to the end of the vector
 		 */
-		// const_reverse_iterator rend(void) const
-		// {
-		// return const_reverse_iterator(this->begin());
-		// }
+		const_reverse_iterator rend(void) const
+		{
+			return const_reverse_iterator(this->begin());
+		}
 
 		/* Capacity */
 
@@ -668,13 +668,13 @@ namespace ft
 				throw (std::length_error("vector::erase"));
 
 			this->_alloc.destroy(&this->_data[position - this->begin()]);
-			for (size_type i = position - this->begin(); i + 1 < this->_size; i++) {
+			for (difference_type i = position - this->begin(); i + 1 < this->_size; i++) {
 				this->_alloc.construct(&this->_data[i], this->_data[i + 1]);
 				this->_alloc.destroy(&this->_data[i + 1]);
 			}
 
 			this->_size--;
-			return iterator(position - this->begin());
+			return position;
 		}
 
 		/**
@@ -687,20 +687,20 @@ namespace ft
 		iterator erase(iterator first, iterator last)
 		{
 			size_type n = last - first;
-			for (size_type i = first - this->begin(); i < last - this->begin(); i++) {
+			for (difference_type i = first - this->begin(); i < last - this->begin(); i++) {
 				this->_alloc.destroy(&this->_data[i]);
 				if (i + n < this->_size) {
 					this->_alloc.construct(&this->_data[i], this->_data[i + n]);
 					this->_alloc.destroy(&this->_data[i + n]);
 				}
 			}
-			for (size_type i = last - this->begin(); i + n < this->_size) {
+			for (difference_type i = last - this->begin(); i + n < this->_size; i++) {
 				this->_alloc.construct(&this->_data[i], this->_data[i + n]);
 				this->_alloc.destroy(&this->_data[i + n]);
 			}
 
 			this->_size -= n;
-			return iterator(first - this->begin());
+			return first;
 		}
 
 		/**
