@@ -90,14 +90,15 @@ namespace ft
 			   InputIterator last,
 			   const allocator_type &alloc = allocator_type()) : _alloc(alloc)
 		{
-			if (static_cast<size_type>(last - first) > this->max_size())
-				throw std::length_error("cannot create ft::vector larger than max_size()");
-
-			this->_size = last - first;
-			this->_capacity = this->_size;
-			this->_data = this->_alloc.allocate(this->_capacity);
-			for (InputIterator it = first; it != last; it++)
-				this->_alloc.construct(&this->_data[it - first], it);
+			try
+			{
+				for (; first != last; first++)
+					push_back(*first);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
 		}
 
 		/**
@@ -408,12 +409,9 @@ namespace ft
 		 * @param last The iterator to the lasr element in the range of elements to be copied.
 		 */
 		template <class InputIterator>
-		void assign(InputIterator first, InputIterator last)
+		void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 		{
-			if (last - first > this->max_size())
-				throw std::length_error("cannot create ft::vector larger than max_size()");
-
-			if (last - first > this->_capacity)
+			if (static_cast<size_type>(last - first) > this->_capacity)
 			{
 				pointer tmp_data = this->_data;
 
@@ -763,7 +761,7 @@ namespace ft
 	/* Non-member function overloads */
 
 	template <class T, class Alloc>
-	bool operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
+	bool operator==(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
 	{
 		if (lhs.size() != rhs.size())
 			return false;
@@ -781,16 +779,28 @@ namespace ft
 	}
 
 	template <class T, class Alloc>
-	bool operator!=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
-	{
-		return !(lhs == rhs);
-	}
+	bool operator!=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{ return !(lhs == rhs); }
+
+	template<class T, class Alloc>
+	bool operator<(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{ return ft::lexicographical_compare<T, T>(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
+
+	template<class T, class Alloc>
+	bool operator<=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{ return !(rhs < lhs); }
+
+	template<class T, class Alloc>
+	bool operator>(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{ return rhs < lhs; }
+
+	template<class T, class Alloc>
+	bool operator>=(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{ return !(lhs < rhs); }
 
 	template <class T, class Alloc>
-	void swap(vector<T, Alloc> &x, vector<T, Alloc> &y)
-	{
-		x.swap(y);
-	}
+	void swap(vector<T, Alloc>& x, vector<T, Alloc>& y)
+	{ x.swap(y); }
 
 } /* namespace ft */
 

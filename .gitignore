@@ -3,3 +3,4 @@ bin/
 log/
 .vscode/
 containers
+containers_test

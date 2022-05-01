@@ -276,9 +276,7 @@ namespace ft
 		}
 
 		pointer operator->() const
-		{
-			return &(operator*());
-		}
+		{ return &(operator*()); }
 
 		reverse_iterator& operator++()
 		{
@@ -307,9 +305,7 @@ namespace ft
 		}
 
 		reverse_iterator operator+(difference_type n) const
-		{
-			return reverse_iterator(current - n);
-		}
+		{ return reverse_iterator(current - n); }
 
 		reverse_iterator& operator+=(difference_type n)
 		{
@@ -318,9 +314,7 @@ namespace ft
 		}
 
 		reverse_iterator operator-(difference_type n) const
-		{
-			return reverse_iterator(current + n);
-		}
+		{ return reverse_iterator(current + n); }
 
 		reverse_iterator& operator-=(difference_type n)
 		{
@@ -397,13 +391,13 @@ namespace ft
 	inline typename reverse_iterator<Iterator>::difference_type
 	operator-(const reverse_iterator<Iterator>& lhs,
 			  const reverse_iterator<Iterator>& rhs)
-	{ return rhs.base() - lhs.base(); }
+	{ return lhs.base() - rhs.base(); }
 
 	template<typename IteratorL, typename IteratorR>
 	inline typename reverse_iterator<IteratorL>::difference_type
 	operator-(const reverse_iterator<IteratorL>& lhs,
 			  const reverse_iterator<IteratorR>& rhs)
-	{ return rhs.base() - lhs.base(); }
+	{ return lhs.base() - rhs.base(); }
 
 	template<typename Iterator>
 	inline reverse_iterator<Iterator>
