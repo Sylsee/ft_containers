@@ -49,17 +49,13 @@ namespace ft
 
 		/* Member functions */
 
+		vector() { }
 		/**
 		 * @brief Default constructor
 		 *
 		 * @param alloc The allocator to use
 		 */
-		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc)
-		{
-			this->_size = 0;
-			this->_capacity = 0;
-			this->_data = NULL;
-		}
+		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc) { }
 
 		/**
 		 * @brief Size constructor
@@ -249,7 +245,7 @@ namespace ft
 		 */
 		void resize(size_type n, value_type val = value_type())
 		{
-			if (n > this->max_size())
+			if (n > max_size())
 				throw std::length_error("vector::resize");
 
 			if (n < this->_size)
@@ -307,7 +303,7 @@ namespace ft
 		 */
 		void reserve(size_type n)
 		{
-			if (n > this->max_size())
+			if (n > max_size())
 				throw std::length_error("vector::reserve");
 
 			else if (n > this->capacity())
@@ -352,7 +348,7 @@ namespace ft
 		 **/
 		reference at(size_type n)
 		{
-			if (n >= this->_size)
+			if (n >= size())
 				throw std::out_of_range("vector::at: n (which is " + ft::to_string(n) + ") >= this->size() (which is " + ft::to_string(this->_size) + ")");
 			return this->_data[n];
 		}
@@ -411,11 +407,12 @@ namespace ft
 		template <class InputIterator>
 		void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
 		{
-			if (static_cast<size_type>(last - first) > this->_capacity)
+			const size_type __len = std::distance(first, last);
+			if (__len > this->_capacity)
 			{
 				pointer tmp_data = this->_data;
 
-				this->_data = this->_alloc.allocate(last - first);
+				this->_data = this->_alloc.allocate(__len);
 				for (size_type i = 0; i < this->_size; i++)
 				{
 					this->_alloc.construct(&this->_data[i], *(first++));
@@ -425,8 +422,8 @@ namespace ft
 				for (InputIterator it = first; it != last; it++)
 					this->_alloc.construct(&this->_data[it - first], *it);
 
-				this->_size = last - first;
-				this->_capacity = last - first;
+				this->_size = __len;
+				this->_capacity = __len;
 			}
 			else
 			{
@@ -435,7 +432,7 @@ namespace ft
 					this->_alloc.destroy(&this->_data[it - first]);
 					this->_alloc.construct(&this->_data[it - first], *it);
 				}
-				this->_size = last - first;
+				this->_size = __len;
 			}
 		}
 
@@ -446,36 +443,33 @@ namespace ft
 		 * @param n The new size of the vector.
 		 * @param val The value to fill the vector with.
 		 */
-		void assign(size_type n, const value_type &val)
+		void assign(size_type __len, const value_type &val)
 		{
-			if (n > this->max_size())
-				throw std::length_error("cannot create ft::vector larger than max_size()");
-
-			if (n > this->_capacity)
+			if (__len > this->_capacity)
 			{
 				pointer tmp_data = this->_data;
 
-				this->_data = this->_alloc.allocate(n);
+				this->_data = this->_alloc.allocate(__len);
 				for (size_type i = 0; i < this->_size; i++)
 				{
 					this->_alloc.destroy(&tmp_data[i]);
 					this->_alloc.construct(&this->_data[i], val);
 				}
 				this->_alloc.deallocate(tmp_data, this->_capacity);
-				for (size_type i = this->_size; i < n; i++)
+				for (size_type i = this->_size; i < __len; i++)
 					this->_alloc.construct(&this->_data[i], val);
 
-				this->_size = n;
-				this->_capacity = n;
+				this->_size = __len;
+				this->_capacity = __len;
 			}
 			else
 			{
-				for (size_type i = 0; i < n; i++)
+				for (size_type i = 0; i < __len; i++)
 				{
 					this->_alloc.destroy(&this->_data[i]);
 					this->_alloc.construct(&this->_data[i], val);
 				}
-				this->_size = n;
+				this->_size = __len;
 			}
 		}
 
@@ -485,13 +479,13 @@ namespace ft
 		 *
 		 * @param val The value to fill the vector with.
 		 */
-		void push_back(const value_type &val)
+		void push_back(const value_type& val)
 		{
-			if (this->_size + 1 > this->max_size())
+			if (this->_size + 1 > max_size())
 				throw std::length_error("cannot create ft::vector larger than max_size()");
 
 			if (this->_size + 1 > this->_capacity)
-				this->reserve(++this->_capacity);
+				this->reserve(this->_capacity + 1);
 
 			this->_alloc.construct(&this->_data[this->_size++], val);
 		}
@@ -514,12 +508,12 @@ namespace ft
 		 */
 		iterator insert(iterator position, const value_type &val)
 		{
-			if (this->_size + 1 > this->max_size() || position - this->begin() > this->_size)
+			if (this->_size + 1 > max_size() || position - this->begin() > this->_size)
 				throw (std::length_error("vector::insert"));
 
 			if (this->_size + 1 > this->_capacity) {
 				size_type new_capacity = this->_capacity ? this->_capacity * 2 : 1;
-				if (new_capacity > this->max_size())
+				if (new_capacity > max_size())
 					throw (std::length_error("vector::insert"));
 
 				pointer tmp_data = this->_alloc.allocate(new_capacity);
@@ -566,7 +560,7 @@ namespace ft
 
 			if (this->_size + n > this->_capacity) {
 				size_type new_capacity = ft::max(this->_capacity * 2, this->_size + n);
-				if (new_capacity > this->max_size())
+				if (new_capacity > max_size())
 					throw (std::length_error("vector::insert"));
 
 				pointer tmp_data = this->_alloc.allocate(new_capacity);
@@ -612,22 +606,22 @@ namespace ft
 					 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 					 InputIterator last)
 		{
-			if (static_cast<size_type>(last - first) > this->max_size || position - this->begin() > this->_size)
+			if (static_cast<size_type>(last - first) > max_size() || position - this->begin() > this->_size)
 				throw (std::length_error("vector::insert"));
 
 			size_type n = last - first;
 			if (this->_size + n > this->_capacity) {
 				size_type new_capacity = ft::max(this->_capacity * 2, this->_size + n);
-				if (new_capacity > this->max_size())
+				if (new_capacity > max_size())
 					throw (std::length_error("vector::insert"));
 
 				pointer tmp_data = this->_alloc.allocate(new_capacity);
-				for (size_type i = 0; i < position - this->begin(); i++) {
+				for (difference_type i = 0; i < position - this->begin(); i++) {
 					this->_alloc.construct(&tmp_data[i], this->_data[i]);
 					this->_alloc.destroy(&this->_data[i]);
 				}
 				for (size_type i = position - this->begin(); first != last; i++) {
-					this->_alloc.construct(&this->_data[i], first);
+					this->_alloc.construct(&this->_data[i], *first);
 					first++;
 				}
 				for (size_type i = position - this->begin() + n; i < this->_size + n; i++) {
@@ -646,7 +640,7 @@ namespace ft
 					this->_alloc.destroy(&this->_data[i - n]);
 				}
 				for (size_type i = position - this->begin(); first != last; i++) {
-					this->_alloc.construct(&this->_data[i], first);
+					this->_alloc.construct(&this->_data[i], *first);
 					first++;
 				}
 

@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 19:06:17 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/18 15:39:04 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/02 14:54:35 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 	#include <stack>
 	#include <vector>
 	#include <iterator>
-	#include <type_traits>
+	// #include <type_traits>
 	namespace ft = std;
 #else
 	#include "includes/vector.hpp"
@@ -43,6 +43,7 @@ std::ostream&	operator<<(std::ostream& o, const Test& t)
 }
 
 #define SIZE 11
+
 
 template < typename T >
 void print(ft::vector< T >& v)
@@ -71,7 +72,20 @@ int main(void)
 {
 	try
 	{
-		ft::vector<int> v(10, 8);
+		ft::vector<int> myvector;
+		for (int i=0; i<10; i++) {
+			std::cout << i << std::endl;
+			myvector.push_back(i);  // myvector: 0 1 2 3 4 5 6 7 8 9
+		}
+
+		// myvector.assign();
+
+		typedef ft::vector<int>::iterator iter_type;
+
+		ft::reverse_iterator<iter_type> rev_iterator = myvector.rbegin();
+
+		std::cout << "The fourth element from the end is: " << rev_iterator[1] << '\n';
+/*		ft::vector<int> v(10, 8);
 		print(v);
 
 		ft::vector<int>::iterator it = v.begin() + 2;
@@ -84,7 +98,7 @@ int main(void)
 			it++;
 		}
 		print(v);
-	}
+*/	}
 	catch (std::exception const & e)
 	{
 		std::cerr << e.what() << std::endl;

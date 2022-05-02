@@ -100,8 +100,8 @@ namespace ft
 		 * @param i The index
 		 * @return _Iterator& The value at the index
 		 */
-		reference operator[](difference_type i) const
-		{ return _ptr[i]; }
+		reference operator[](difference_type n) const
+		{ return base()[-n - 1]; }
 
 		/**
 		 * @brief Give a reference to this random access iterator
