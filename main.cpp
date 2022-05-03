@@ -13,8 +13,8 @@
 #include <iostream>
 
 #ifndef STD
-	#include <map>
-	#include <stack>
+	// #include <map>
+	// #include <stack>
 	#include <vector>
 	#include <iterator>
 	// #include <type_traits>
@@ -25,7 +25,7 @@
 	#include "includes/traits.hpp"
 	#include "includes/utils.hpp"
 #endif
-#include <typeinfo>
+// #include <typeinfo>
 
 class Test
 {
@@ -72,33 +72,17 @@ int main(void)
 {
 	try
 	{
-		ft::vector<int> myvector;
-		for (int i=0; i<10; i++) {
-			std::cout << i << std::endl;
-			myvector.push_back(i);  // myvector: 0 1 2 3 4 5 6 7 8 9
-		}
-
-		// myvector.assign();
-
-		typedef ft::vector<int>::iterator iter_type;
-
-		ft::reverse_iterator<iter_type> rev_iterator = myvector.rbegin();
-
-		std::cout << "The fourth element from the end is: " << rev_iterator[1] << '\n';
-/*		ft::vector<int> v(10, 8);
+		ft::vector<int> v(10, 8);
 		print(v);
 
-		ft::vector<int>::iterator it = v.begin() + 2;
-		ft::vector<int>::iterator it2(it);
+		ft::vector<int>::iterator it = v.begin();
+		ft::vector<int>::iterator it2 = v.begin() + 5;
 
-		// std::cout << it.base() << std::endl;
-		it = v.erase(it, it2);
-		while (it != v.end()){
-			std::cout << *it << std::endl;
-			it++;
-		}
+		ft::vector<int> v2;
+		v2.assign(it, it2);
 		print(v);
-*/	}
+		print(v2);
+	}
 	catch (std::exception const & e)
 	{
 		std::cerr << e.what() << std::endl;
