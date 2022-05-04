@@ -314,17 +314,17 @@ namespace ft
 		 *
 		 * @param n The minimum number of elements the vector should be able to hold.
 		 */
-		void reserve(size_type n)
+		void reserve(size_type __n)
 		{
-			if (n > max_size())
+			if (__n > max_size())
 				throw std::length_error("vector::reserve");
 
-			if (n > capacity())
+			if (__n > capacity())
 			{
 				pointer tmp_data = this->_data;
 
-				this->_data = this->_alloc.allocate(n);
-				for (size_type i = 0; i < this->_size; i++)
+				this->_data = this->_alloc.allocate(__n);
+				for (size_type i = 0; i < size(); i++)
 				{
 					this->_alloc.construct(this->_data + i, *(tmp_data + i));
 					this->_alloc.destroy(tmp_data + i);
@@ -332,7 +332,7 @@ namespace ft
 				if (size())
 					this->_alloc.deallocate(tmp_data, capacity());
 
-				this->_capacity = n;
+				this->_capacity = __n;
 			}
 		}
 
@@ -489,13 +489,10 @@ namespace ft
 		 *
 		 * @param val The value to fill the vector with.
 		 */
-		void push_back(const value_type& val)
+		inline void push_back(const value_type& val)
 		{
-			if (this->_size + 1 > max_size())
-				throw std::length_error("cannot create ft::vector larger than max_size()");
-
 			if (size() + 1 > capacity())
-				this->reserve(this->_capacity + 1);
+				reserve(capacity() ? capacity() * 2 : 1);
 
 			this->_alloc.construct(this->_data + this->_size++, val);
 		}
@@ -505,7 +502,7 @@ namespace ft
 		 */
 		void pop_back(void)
 		{
-			this->_alloc.destroy(&this->_data[--this->_size]);
+			this->_alloc.destroy(this->_data + --this->_size);
 		}
 
 		/**
