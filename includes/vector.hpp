@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 16:26:07 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/11 18:37:39 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/06 17:50:01 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ namespace ft
 	 * @tparam T The type of the elements stores in the vector
 	 * @tparam Alloc The allocator type, set by default to std::allocator<T>
 	 */
-	template < class T, class Alloc = std::allocator<T> >
+	template<class T, class Alloc = std::allocator<T> >
 	class vector
 	{
 
@@ -62,9 +62,10 @@ namespace ft
 		 *
 		 * @param alloc The allocator to use
 		 */
-		explicit vector(const allocator_type &alloc = allocator_type()) : _alloc(alloc),
-																		  _size(0),
-																		  _capacity(0)
+		explicit vector(const allocator_type &alloc = allocator_type())
+		: _alloc(alloc),
+		  _size(0),
+		  _capacity(0)
 		{ }
 
 		/**
@@ -75,9 +76,10 @@ namespace ft
 		 * @param alloc The allocator to use
 		 */
 		explicit vector(size_type n, const value_type &val = value_type(),
-						const allocator_type &alloc = allocator_type()) : _alloc(alloc),
-																		  _size(n),
-																		  _capacity(n)
+						const allocator_type &alloc = allocator_type())
+		: _alloc(alloc),
+		  _size(n),
+		  _capacity(n)
 		{
 			this->_data = this->_alloc.allocate(n);
 			while (n--)
@@ -95,9 +97,9 @@ namespace ft
 		vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 			   InputIterator last,
 			   const allocator_type &alloc = allocator_type())
-			   	: _alloc(alloc),
-				  _size(0),
-				  _capacity(0)
+		: _alloc(alloc),
+		  _size(0),
+		  _capacity(0)
 		{
 			try
 			{
@@ -160,9 +162,7 @@ namespace ft
 		 * @return An iterator to the beginning of the vector
 		 */
 		iterator begin(void)
-		{
-			return iterator(this->_data);
-		}
+		{ return iterator(this->_data); }
 
 		/**
 		 * @brief Return a const iterator to the beginning of the vector
@@ -170,9 +170,7 @@ namespace ft
 		 * @return A const iterator to the beginning of the vector
 		 */
 		const_iterator begin(void) const
-		{
-			return const_iterator(this->_data);
-		}
+		{ return const_iterator(this->_data); }
 
 		/**
 		 * @brief Return an iterator to the end of the vector
@@ -180,9 +178,7 @@ namespace ft
 		 * @return An iterator to the end of the vector
 		 */
 		iterator end(void)
-		{
-			return iterator(this->_data + this->_size);
-		}
+		{ return iterator(this->_data + this->_size); }
 
 		/**
 		 * @brief Return a const iterator to the end of the vector
@@ -190,9 +186,7 @@ namespace ft
 		 * @return A const iterator to the end of the vector
 		 */
 		const_iterator end(void) const
-		{
-			return const_iterator(this->_data + this->_size);
-		}
+		{ return const_iterator(this->_data + this->_size); }
 
 		/**
 		 * @brief Return a reverse iterator to the beginning of the vector
@@ -200,9 +194,7 @@ namespace ft
 		 * @return A reverse iterator to the beginning of the vector
 		 */
 		reverse_iterator rbegin(void)
-		{
-			return reverse_iterator(end());
-		}
+		{ return reverse_iterator(end()); }
 
 		/**
 		 * @brief Return a const reverse iterator to the beginning of the vector
@@ -210,9 +202,7 @@ namespace ft
 		 * @return A const reverse iterator to the beginning of the vector
 		 */
 		const_reverse_iterator rbegin(void) const
-		{
-			return const_reverse_iterator(end());
-		}
+		{ return const_reverse_iterator(end()); }
 
 		/**
 		 * @brief Return a reverse iterator to the end of the vector
@@ -220,9 +210,7 @@ namespace ft
 		 * @return A reverse iterator to the end of the vector
 		 */
 		reverse_iterator rend(void)
-		{
-			return reverse_iterator(begin());
-		}
+		{ return reverse_iterator(begin()); }
 
 		/**
 		 * @brief Return a const reverse iterator to the end of the vector
@@ -230,9 +218,7 @@ namespace ft
 		 * @return A const reverse iterator to the end of the vector
 		 */
 		const_reverse_iterator rend(void) const
-		{
-			return const_reverse_iterator(begin());
-		}
+		{ return const_reverse_iterator(begin()); }
 
 		/* Capacity */
 
@@ -241,14 +227,16 @@ namespace ft
 		 *
 		 * @return The number of elements in the container.
 		 **/
-		size_type size(void) const { return this->_size; }
+		size_type size(void) const
+		{ return this->_size; }
 
 		/**
 		 * @brief Returns the maximum number of elements that the vector can hold.
 		 *
 		 * @return The maximum number of elements a vector container can hold as content.
 		 **/
-		size_type max_size(void) const { return this->_alloc.max_size(); }
+		size_type max_size(void) const
+		{ return this->_alloc.max_size(); }
 
 		/**
 		 * @brief Resizes the container so that it contains n elements.
@@ -300,14 +288,16 @@ namespace ft
 		 *
 		 * @return The size of the currently allocated storage capacity in the vector, measured in terms of the number elements it can hold.
 		 **/
-		size_type capacity(void) const { return this->_capacity; }
+		size_type capacity(void) const
+		{ return this->_capacity; }
 
 		/**
 		 * @brief Returns whether the vector is empty (i.e. whether its size is 0).
 		 *
 		 * @return true if the vector is empty, false otherwise.
 		 **/
-		bool empty(void) const { return (this->_size == 0); }
+		bool empty(void) const
+		{ return this->_size == 0; }
 
 		/**
 		 * @brief Requests that the vector capacity be at least enough to contain n elements.
@@ -344,7 +334,8 @@ namespace ft
 		 * @param n The position of the element to return.
 		 * @return A reference to the element at position n in the vector container.
 		 **/
-		reference operator[](size_type n) { return *(this->_data + n); }
+		reference operator[](size_type n)
+		{ return this->_data[n]; }
 
 		/**
 		 * @brief Returns a const reference to the element at position n in the vector container.
@@ -352,7 +343,8 @@ namespace ft
 		 * @param n The position of the element to return.
 		 * @return A const reference to the element at position n in the vector container.
 		 **/
-		const_reference operator[](size_type n) const { return *(this->_data + n); }
+		const_reference operator[](size_type n) const
+		{ return this->_data[n]; }
 
 		/**
 		 * @brief Returns a reference to the element at position n in the vector container.
@@ -385,28 +377,32 @@ namespace ft
 		 *
 		 * @return A reference to the first element in the vector container.
 		 **/
-		reference front(void) { return *this->_data; }
+		reference front(void)
+		{ return *this->_data; }
 
 		/**
 		 * @brief Returns a const reference to the first element in the vector container.
 		 *
 		 * @return A const reference to the first element in the vector container.
 		 **/
-		const_reference front(void) const { return *this->_data; }
+		const_reference front(void) const
+		{ return *this->_data; }
 
 		/**
 		 * @brief Returns a reference to the last element in the vector container.
 		 *
 		 * @return A reference to the last element in the vector container.
 		 **/
-		reference back(void) { return *(this->_data + this->_size - 1); }
+		reference back(void)
+		{ return *(this->_data + this->_size - 1); }
 
 		/**
 		 * @brief Returns a const reference to the last element in the vector container.
 		 *
 		 * @return A const reference to the last element in the vector container.
 		 **/
-		const_reference back(void) const { return *(this->_data + this->_size - 1); }
+		const_reference back(void) const
+		{ return *(this->_data + this->_size - 1); }
 
 		/* Modifiers */
 
@@ -501,9 +497,7 @@ namespace ft
 		 * @brief Removes the last element in the vector, effectively reducing its size by one.
 		 */
 		void pop_back(void)
-		{
-			this->_alloc.destroy(this->_data + --this->_size);
-		}
+		{ this->_alloc.destroy(this->_data + --this->_size); }
 
 		/**
 		 * @brief The vector is extended by inserting new elements before the element at the specified position,
@@ -607,7 +601,7 @@ namespace ft
 					 typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 					 InputIterator last)
 		{
-			size_type __len = ft::distance(first, last);
+			size_type __len = std::distance(first, last);
 
 			if (size() + __len > capacity())
 			{
@@ -720,7 +714,8 @@ namespace ft
 		 *
 		 * @return The allocator.
 		 **/
-		allocator_type get_allocator(void) const { return this->_alloc; }
+		allocator_type get_allocator(void) const
+		{ return this->_alloc; }
 
 	private:
 

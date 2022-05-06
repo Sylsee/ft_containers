@@ -43,7 +43,9 @@ namespace ft
 			: _ptr(_i) { }
 
 		template<typename _Iter>
-		random_access_iterator(const random_access_iterator<_Iter>& _i) : _ptr(_i.base()) { }
+		random_access_iterator(const random_access_iterator<_Iter>& _i)
+		: _ptr(_i.base())
+		{ }
 
 		/**
 		 * @brief Dereference operator

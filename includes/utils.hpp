@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/06 20:18:16 by spoliart          #+#    #+#             */
-/*   Updated: 2022/04/06 20:21:56 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/06 17:39:35 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,6 @@
 
 namespace ft
 {
-	template<typename _Iterator>
-	typename ft::iterator_traits<_Iterator>::difference_type distance(typename ft::enable_if<!ft::is_integral<_Iterator>::value, _Iterator>::type it, _Iterator it2)
-	{
-		typename ft::iterator_traits<_Iterator>::difference_type __len = 0;
-		for (; it != it2; ++it) ++__len;
-
-		return __len;
-	}
 
 	template < typename T >
 	std::string to_string(T n)
@@ -56,11 +48,9 @@ namespace ft
 	 * @param b The second element
 	 * @return The max of a and b
 	 */
-	template < typename T >
-	T	max(T a, T b)
-	{
-		return (a > b) ? a : b;
-	}
+	template<typename T>
+	T max(T a, T b)
+	{ return (a > b) ? a : b; }
 
 	/* Equal */
 

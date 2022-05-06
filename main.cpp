@@ -6,10 +6,10 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 19:06:17 by spoliart          #+#    #+#             */
-/*   Updated: 2022/05/02 14:54:35 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/06 17:37:09 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-/*
+
 #include <iostream>
 
 #ifdef STD
@@ -72,19 +72,13 @@ int main(void)
 {
 	try
 	{
-		ft::vector<int> v;
+		ft::vector<int> v, v2(10, 8);
 		print(v);
+		print(v2);
 
-		v.push_back(1);
+		v.insert(v.begin(), v2.begin(), v2.end());
 		print(v);
-		v.push_back(2);
-		print(v);
-		v.push_back(3);
-		print(v);
-		v.push_back(4);
-		print(v);
-		v.push_back(5);
-		print(v);
+		print(v2);
 	}
 	catch (std::exception const & e)
 	{
@@ -93,7 +87,7 @@ int main(void)
 
 	return 0;
 }
-*/
+/*
 #include <iostream>
 #include <string>
 #include <deque>
@@ -210,4 +204,4 @@ int main(int argc, char** argv) {
 	}
 	std::cout << std::endl;
 	return (0);
-}
+}*/
