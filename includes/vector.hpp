@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/19 16:26:07 by spoliart          #+#    #+#             */
-/*   Updated: 2022/05/06 17:50:01 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/07 13:58:59 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,9 +415,12 @@ namespace ft
 		 * @param last The iterator to the lasr element in the range of elements to be copied.
 		 */
 		template <class InputIterator>
-		void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first, InputIterator last)
+		void assign(
+			typename ft::enable_if<
+			!ft::is_integral<InputIterator>::value, InputIterator>::type first,
+			InputIterator last)
 		{
-			const size_type __len = ft::distance(first, last);
+			const size_type __len = std::distance(first, last);
 
 			if (__len > capacity())
 			{
@@ -433,11 +436,10 @@ namespace ft
 			}
 			else
 			{
-				for (size_type i = 0; first != last; ++i, ++first)
-				{
+				for (size_type i = 0; i < size(); ++i)
 					this->_alloc.destroy(this->_data + i);
+				for (size_type i = 0; first != last; ++i, ++first)
 					this->_alloc.construct(this->_data + i, *first);
-				}
 				this->_size = __len;
 			}
 		}
@@ -451,30 +453,25 @@ namespace ft
 		 */
 		void assign(size_type __len, const value_type &val)
 		{
-			if (__len > this->_capacity)
+			if (__len > capacity())
 			{
-				pointer tmp_data = this->_data;
+				pointer __tmp = this->_data;
 
-				this->_data = this->_alloc.allocate(__len);
-				for (size_type i = 0; i < this->_size; i++)
-				{
-					this->_alloc.destroy(&tmp_data[i]);
-					this->_alloc.construct(&this->_data[i], val);
-				}
-				this->_alloc.deallocate(tmp_data, this->_capacity);
-				for (size_type i = this->_size; i < __len; i++)
-					this->_alloc.construct(&this->_data[i], val);
+				__tmp = this->_alloc.allocate(__len);
+				for (size_type i = 0; i < __len; ++i)
+					this->_alloc.construct(__tmp + i, val);
+				this->_destroy();
 
+				this->_data = __tmp;
 				this->_size = __len;
 				this->_capacity = __len;
 			}
 			else
 			{
+				for (size_type i = 0; i < size(); ++i)
+					this->_alloc.destroy(this->_data + i);
 				for (size_type i = 0; i < __len; i++)
-				{
-					this->_alloc.destroy(&this->_data[i]);
-					this->_alloc.construct(&this->_data[i], val);
-				}
+					this->_alloc.construct(this->_data + i, val);
 				this->_size = __len;
 			}
 		}
