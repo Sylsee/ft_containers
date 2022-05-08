@@ -32,7 +32,8 @@ namespace ft
 		 * @brief Default constructor
 		 */
 		random_access_iterator(void)
-			: _ptr(_Iterator()) { }
+		: _ptr(_Iterator())
+		{ }
 
 		/**
 		 * @brief Assignment operator
@@ -40,7 +41,8 @@ namespace ft
 		 * @param ptr The pointer to assign
 		 */
 		explicit random_access_iterator(const _Iterator& _i)
-			: _ptr(_i) { }
+		: _ptr(_i)
+		{ }
 
 		template<typename _Iter>
 		random_access_iterator(const random_access_iterator<_Iter>& _i)
@@ -244,8 +246,6 @@ namespace ft
 
 
 
-
-
 	/* Reverse iterator */
 
 	template <typename Iterator>
@@ -264,14 +264,22 @@ namespace ft
 		typedef typename traits_type::pointer			pointer;
 		typedef typename traits_type::reference			reference;
 
-		reverse_iterator() : _current() { }
+		reverse_iterator()
+		: _current()
+		{ }
 
-		explicit reverse_iterator(iterator_type x) : _current(x) { }
+		explicit reverse_iterator(iterator_type x)
+		: _current(x)
+		{ }
 
-		explicit reverse_iterator(const reverse_iterator& x) : _current(x._current) { }
+		explicit reverse_iterator(const reverse_iterator& x)
+		: _current(x._current)
+		{ }
 
 		template <class Iter>
-		reverse_iterator(const reverse_iterator<Iter>& x) : _current(x.base()) { }
+		reverse_iterator(const reverse_iterator<Iter>& x)
+		: _current(x.base())
+		{ }
 
 		iterator_type base() const
 		{ return _current; }

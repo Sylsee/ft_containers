@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <iostream>
+#include <string>
 
 #ifndef STD
 	#include <map>
@@ -45,41 +46,18 @@ std::ostream&	operator<<(std::ostream& o, const Test& t)
 
 #define SIZE 11
 
-
-template < typename T >
-void print(ft::vector< T >& v)
-{
-	std::cout
-			//   << "front: " << v.front() << std::endl
-			//   << "back: " << v.back() << std::endl
-			  << "size: " << v.size() << std::endl
-			  << "capacity: " << v.capacity() << std::endl
-			  << "max_size: " << v.max_size() << std::endl
-			  << "empty: " << v.empty() << std::endl;
-#ifndef NO_DISPLAY_ADDRESS
-	std::cout << "address: " << &v[0] << std::endl;
-#endif
-
-	std::cout << "content: [";
-	for (typename ft::vector<T>::iterator it = v.begin(); it != v.end(); ++it) {
-		std::cout << *it;
-		if (it != v.end() - 1)
-			std::cout << ", ";
-	}
-	std::cout << "]" << std::endl << std::endl;
-}
-GDB Failed to set controlling terminal: Operation not permited
 int main(void)
 {
 	try
 	{
-		ft::vector<int> v, v2(10, 8);
-		print(v);
-		print(v2);
+		ft::map<int, std::string> m;
 
-		v.insert(v.begin(), v2.begin(), v2.end());
-		print(v);
-		print(v2);
+		for (int i = 0; i < 20; i++)
+			m.insert(std::make_pair(i, std::to_string(i) + 'a'));
+
+		typedef ft::map<int, std::string>::iterator iterator;
+		for (iterator it = m.begin(); it != m.end(); it++)
+			std::cout << "key: " << it->first << " second: " << it->second << std::endl;
 	}
 	catch (std::exception const & e)
 	{
