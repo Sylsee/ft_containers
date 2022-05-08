@@ -13,42 +13,127 @@
 #ifndef RB_TREE_HPP
 #define RB_TREE_HPP
 
+#include <memory>
+#include <functional>
+
 namespace ft
 {
-	enum node_color { BLACK = true, RED = false }
+	enum node_color { BLACK = true, RED = false };
 
 	template<typename _Tp>
-	typedef struct	node
+	struct	Node
 	{
-		typedef typename _Tp	value_type;
+	public:
+		_Tp		*data;
+		bool	color;
+		Node	*parent;
+		Node	*left;
+		Node	*right;
 
-		value_type	value;
-		bool		color;
-		node		*parent;
-		node		*left;
-		node		*right;
-	}				node;
-	
+		Node()
+		: data(NULL),
+		  left(NULL),
+		  right(NULL),
+		  parent(NULL),
+		  color(BLACK)
+		{ }
 
-	template<typename _Tp>
+		Node(_Tp& x)
+		: data(x),
+		  color(BLACK),
+		  parent(NULL),
+		  left(NULL),
+		  right(NULL)
+		{ }
+
+		Node(const Node& rhs)
+		{ *this = rhs; }
+
+		virtual ~Node()
+		{ }
+
+		Node operator=(const Node& rhs)
+		{
+			if (this != &rhs)
+			{
+				this->data = rhs.data;
+				this->color = rhs.color;
+				this->parent = rhs.parent;
+				this->left = rhs.left;
+				this->right = rhs.right;
+			}
+			return *this;
+		}
+	};
+
+	template<typename _Tp, typename _Compare = std::less<_Tp>,
+			 typename _Alloc = std::allocator<_Tp> >
 	class RB_Tree
 	{
-	private:
-		typedef typename node<_Tp>
+	public:
+		typedef _Tp										 value_type;
+		typedef _Compare								 value_compare;
+		typedef _Alloc									 allocator_type;
+		typedef typename allocator_type::pointer		 pointer;
+		typedef typename allocator_type::const_pointer	 const_pointer;
+		typedef typename allocator_type::reference		 reference;
+		typedef typename allocator_type::const_reference const_reference;
+		typedef size_t									 size_type;
+		typedef ptrdiff_t								 difference_type;
+		typedef tree_iterator<_Tp>						 iterator;
+		typedef tree_iterator<const _Tp>				 iterator;
+		typedef ft::reverse_iterator<iterator>			 reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>	 const_reverse_iterator;
+		typedef Node*									 node_pointer;
 
-		__node	_root;
-		__node	
+	private:
+		typedef typename Node<_Tp>	Node;
+
+		allocator_type	_alloc;
+		value_compare	_comp;
+		node_pointer	_root;
+		node_pointer	_header;
+		node_pointer	_nill;
+
+		node_pointer	_min(node_pointer node)
+		{
+			while (node->left != _nill)
+				node = node->left;
+			return node;
+		}
 
 	public:
 
 		RB_Tree()
-		: _root(),
-		  _
+		: _root()
 		{
+			this->_nill = this->_alloc.allocate(1);
+			this->_alloc.construct(this->_nill);
 		}
 
 		~RB_Tree()
+		{ }
+
+		node_pointer min() const
+		{ return _min(this->_root); }
+
+		node_pointer max() const
+		{ return _max(this->_root); }
+
+		iterator find(const value_type& value, node_pointer node) const
 		{
+			if (node == NULL || node == this->_nill)
+				return NULL;
+			while (node != this->_nill)
+			{
+				if (_comp(value, *node->value))
+					node = node->left;
+				else if (_comp(*node->value, value))
+					node = node->right;
+				else
+					break;
+			}
+			return iterator(node);
 		}
 
 	};

@@ -12,8 +12,8 @@
 
 #include <iostream>
 
-#ifdef STD
-	// #include <map>
+#ifndef STD
+	#include <map>
 	#include <stack>
 	#include <vector>
 	#include <iterator>
@@ -68,7 +68,7 @@ void print(ft::vector< T >& v)
 	}
 	std::cout << "]" << std::endl << std::endl;
 }
-
+GDB Failed to set controlling terminal: Operation not permited
 int main(void)
 {
 	try
