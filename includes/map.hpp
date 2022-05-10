@@ -41,7 +41,7 @@ namespace ft
 		class value_compare
 		{
 			friend class map<_Key, _Tp, _Compare, _Alloc>;
-		
+
 		protected:
 			_Compare comp;
 
@@ -54,9 +54,9 @@ namespace ft
 		};
 
 	private:
-		typedef ft::RB_Tree<value_type, value_compare, allocator_type>	_Rep_type;
+		typedef ft::RB_Tree<value_type, value_compare, allocator_type>	RB_Tree;
 
-		_Rep_type	_tree;
+		RB_Tree _tree;
 
 	public:
 		explicit map (const key_compare& comp = key_compare(),
@@ -65,7 +65,40 @@ namespace ft
 		{ }
 
 		~map()
-		{ }
+		{ _tree.destroy(); }
+
+		inline bool empty() const
+		{ return size() == 0; }
+
+		inline size_type size() const
+		{ return _tree.size(); }
+
+		inline size_type max_size() const
+		{ return _tree._val_alloc.max_size(); }
+
+		inline mapped_type& operator[](const key_type* k)
+		{ return _tree.find(k); }
+
+		inline void swap(map& x)
+		{ ft::swap(this->_tree, x._tree); }
+
+		// inline void clear()
+		// { _tree.destroy(); }
+
+		inline key_compare key_comp() const
+		{ return _tree.key_comp(); }
+
+		inline value_compare value_comp() const
+		{ return value_compare(_tree.key_comp()); }
+
+		inline iterator find(const key_type& k)
+		{ return _tree.find(k); }
+
+		inline const_iterator find(const key_type& k) const
+		{ return _tree.find(k); }
+
+		inline size_type count(const key_type& k) const
+		{ return _tree.count(_tree.get_node(k)); }
 	};
 
 } /* namespace ft */

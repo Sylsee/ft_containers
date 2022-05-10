@@ -50,14 +50,16 @@ int main(void)
 {
 	try
 	{
-		ft::map<int, std::string> m;
+		ft::map<int, int> m;
 
-		for (int i = 0; i < 20; i++)
-			m.insert(std::make_pair(i, std::to_string(i) + 'a'));
+		for (int i = 0; i < 10; i++)
+			m.insert(std::make_pair(i, i));
 
-		typedef ft::map<int, std::string>::iterator iterator;
-		for (iterator it = m.begin(); it != m.end(); it++)
-			std::cout << "key: " << it->first << " second: " << it->second << std::endl;
+		// typedef ft::map<int, std::string>::iterator iterator;
+		// for (iterator it = m.begin(); it != m.end();) {
+		// 	std::cout << "key: " << it->first << " second: " << it->second << std::endl;
+		// 	it++;
+		// }
 	}
 	catch (std::exception const & e)
 	{

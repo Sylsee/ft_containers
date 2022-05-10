@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <functional>
+#include <stdexcept>
 
 namespace ft
 {
@@ -24,11 +25,11 @@ namespace ft
 	struct	Node
 	{
 	public:
-		_Tp		*data;
-		bool	color;
-		Node	*parent;
-		Node	*left;
-		Node	*right;
+		_Tp  *data;
+		bool color;
+		Node *parent;
+		Node *left;
+		Node *right;
 
 		Node()
 		: data(NULL),
@@ -48,9 +49,6 @@ namespace ft
 
 		Node(const Node& rhs)
 		{ *this = rhs; }
-
-		virtual ~Node()
-		{ }
 
 		Node operator=(const Node& rhs)
 		{
@@ -72,18 +70,20 @@ namespace ft
 	{
 	public:
 		typedef _Tp										 value_type;
-		typedef _Compare								 value_compare;
-		typedef _Alloc									 allocator_type;
-		typedef typename allocator_type::pointer		 pointer;
-		typedef typename allocator_type::const_pointer	 const_pointer;
-		typedef typename allocator_type::reference		 reference;
-		typedef typename allocator_type::const_reference const_reference;
+		typedef _Tp*									 pointer;
+		typedef const _Tp*								 const_pointer;
+		typedef _Tp&									 reference;
+		typedef const _Tp&								 const_reference;
 		typedef size_t									 size_type;
 		typedef ptrdiff_t								 difference_type;
+
 		typedef tree_iterator<_Tp>						 iterator;
-		typedef tree_iterator<const _Tp>				 iterator;
+		typedef tree_iterator<const _Tp>				 const_iterator;
 		typedef ft::reverse_iterator<iterator>			 reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>	 const_reverse_iterator;
+
+		typedef _Compare								 value_compare;
+		typedef _Alloc									 allocator_type;
 		typedef typename allocator_type::template
 							rebind<Node<_Tp> >::other	 node_allocator;
 		typedef Node*									 node_pointer;
@@ -127,6 +127,65 @@ namespace ft
 			this->_node_alloc.deallocate(node, 1);
 		}
 
+		void	_left_rotate(node_pointer node)
+		{
+			if (_is_nill(node) || _is_nill(node->parent))
+				return ;
+
+			node_pointer parent = node->parent;
+
+			parent->right = node->left;
+			node->parent = parent->parent;
+			parent->parent = node;
+			node->left = parent;
+		}
+
+		void	_right_rotate(node_pointer node)
+		{
+			if (_is_nill(node) || _is_nill(node->parent))
+				return ;
+
+			node_pointer parent = node->parent;
+
+			parent->left = node->right;
+			node->parent = parent->parent;
+			parent->parent = node;
+			node->right = parent;
+		}
+
+		void	_insert_value(pointer value)
+		{
+			node_pointer new_node(value);
+
+			++this->_size;
+			if (_is_nill(this->_root))
+				this->_root = new_node;
+			else
+			{
+				node_pointer __tmp = this->_root;
+				while (!_is_nill(__tmp))
+				{
+					if (!_is_nill(__tmp->left) && _comp(value, *__tmp->value))
+						__tmp = __tmp->left;
+					if (!_is_nill(__tmp->right) && _comp(*__tmp->value, value))
+						__tmp = __tmp->right;
+					else
+						throw(std::invalid_argument("ft::RB_Tree canno't insert two node as the same value"));
+				}
+				__tmp = __tmp->parent;
+
+				if (!_is_nill(__tmp->left) && _comp(value, *__tmp->value))
+					__tmp->left = new_node;
+				if (!_is_nill(__tmp->right) && _comp(*__tmp->value, value))
+					__tmp->right = new_node;
+
+				new_node->parent = __tmp;
+				new_node->color = RED;
+
+				// _fix_height(new_node);
+			}
+		}
+
 	public:
 
 		RB_Tree()
@@ -151,13 +210,13 @@ namespace ft
 			this->_node_alloc.deallocate(this->_head, 1);
 		}
 
-		node_pointer min() const
-		{ return _min(this->_root); }
+		node_pointer min(node_pointer node = this->root) const
+		{ return _min(node); }
 
-		node_pointer max() const
-		{ return _max(this->_root); }
+		node_pointer max(node_pointer node = this->root) const
+		{ return _max(node); }
 
-		iterator find(const value_type& value, node_pointer node) const
+		iterator find(const value_type& value, node_pointer node = this->_root) const
 		{
 			while (!is_nill(node))
 			{
@@ -169,6 +228,32 @@ namespace ft
 					break;
 			}
 			return iterator(node);
+		}
+
+		node_pointer get_node(const value_type& value, node_pointer node = this->_root) const
+		{
+			while (!is_nill(node))
+			{
+				if (!is_nill(node->left) && _comp(value, *node->value))
+					node = node->left;
+				else if (!is_nill(node->right) && _comp(*node->value, value))
+					node = node->right;
+				else
+					break;
+			}
+			return iterator(node);
+		}
+
+		size_type count(node_pointer node = this->root) const
+		{
+			if (_is_nill(node))
+				return 0;
+
+			size_type nb_node = 0;
+			nb_node += count(node->left);
+			nb_node += count(node->right);
+
+			return nb_node;
 		}
 
 	};

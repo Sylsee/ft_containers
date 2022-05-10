@@ -19,39 +19,31 @@
 
 namespace ft
 {
-	template<typename Iterator, typename _Compare = std::less<Iterator> >
+	template<typename _Tp>
 	class RB_Tree_iterator
 	{
-	private:
-		Iterator _current;
+	public:
+		typedef _Tp  value_type;
+		typedef _Tp& reference;
+		typedef _Tp* pointer;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef ptrdiff_t						difference_type;
 
-		typedef iterator_traits<Iterator> traits_type;
+	private:
+		_Tp _current;
+
+		typedef iterator_traits<_Tp> traits_type;
 
 	public:
-		typedef Iterator								iterator_type;
-		typedef typename traits_type::iterator_category	iterator_category;
-		typedef typename traits_type::value_type		value_type;
-		typedef typename traits_type::difference_type	difference_type;
-		typedef typename traits_type::pointer			pointer;
-		typedef typename traits_type::reference			reference;
-
 		RB_Tree_iterator()
-		: _current(Iterator())
+		: _current(_Tp())
 		{ }
 
-		explicit RB_Tree_iterator(iterator_type x)
+		explicit RB_Tree_iterator(value_type x)	
 		: _current(x)
 		{ }
 
-		template<typename Iter>
-		RB_Tree_iterator(const RB_Tree_iterator<Iter>& x)
-		: _current(x.base())
-		{ }
-
-		~RB_Tree_iterator()
-		{ }
-
-		iterator_type base() const
+		value_type base() const
 		{ return this->_current; }
 
 		reference operator*() const
@@ -59,6 +51,26 @@ namespace ft
 
 		pointer operator->() const
 		{ return _current; }
+
+		/* TODO */
+		RB_Tree_iterator& operator++()
+		{ }
+
+		RB_Tree_iterator operator++(int)
+		{ }
+
+		RB_Tree_iterator& operator--()
+		{ }
+
+		RB_Tree_iterator operator--(int)
+		{ }
+		/********/
+
+		friend inline bool operator==(const RB_Tree_iterator& lhs, const RB_Tree_iterator& rhs)
+		{ return lhs.base() == rhs.base(); }
+
+		friend inline bool operator!=(const RB_Tree_iterator& lhs, const RB_Tree_iterator& rhs)
+		{ return lhs.base() != rhs.base(); }
 	};
 
 } /* namespace ft */
