@@ -16,6 +16,7 @@
 #include <memory>
 #include <functional>
 #include <stdexcept>
+#include <RB_Tree_iterator.hpp>
 
 namespace ft
 {
@@ -33,13 +34,13 @@ namespace ft
 
 		Node()
 		: data(NULL),
-		  left(NULL),
-		  right(NULL),
+		  color(BLACK),
 		  parent(NULL),
-		  color(BLACK)
+		  left(NULL),
+		  right(NULL)
 		{ }
 
-		Node(_Tp& x)
+		Node(_Tp *x)
 		: data(x),
 		  color(BLACK),
 		  parent(NULL),
@@ -62,6 +63,9 @@ namespace ft
 			}
 			return *this;
 		}
+
+		_Tp	*base() const
+		{ return this->data; }
 	};
 
 	template<typename _Tp, typename _Compare = std::less<_Tp>,
@@ -70,26 +74,142 @@ namespace ft
 	{
 	public:
 		typedef _Tp										 value_type;
-		typedef _Tp*									 pointer;
-		typedef const _Tp*								 const_pointer;
-		typedef _Tp&									 reference;
-		typedef const _Tp&								 const_reference;
+		typedef value_type*								 pointer;
+		typedef const value_type*						 const_pointer;
+		typedef value_type&								 reference;
+		typedef const value_type&						 const_reference;
 		typedef size_t									 size_type;
 		typedef ptrdiff_t								 difference_type;
 
-		typedef tree_iterator<_Tp>						 iterator;
-		typedef tree_iterator<const _Tp>				 const_iterator;
+		typedef RB_Tree_iterator<value_type>			 iterator;
+		typedef RB_Tree_iterator<const value_type>		 const_iterator;
 		typedef ft::reverse_iterator<iterator>			 reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>	 const_reverse_iterator;
 
 		typedef _Compare								 value_compare;
 		typedef _Alloc									 allocator_type;
 		typedef typename allocator_type::template
-							rebind<Node<_Tp> >::other	 node_allocator;
-		typedef Node*									 node_pointer;
+					rebind<Node<value_type> >::other	 node_allocator;
+		typedef Node<value_type>*						 node_pointer;
+
+		RB_Tree()
+		: _root()
+		{
+			this->_nill = this->_node_alloc.allocate(1);
+			this->_node_alloc.construct(this->_nill, Node());
+			this->_head = this->_node_alloc.allocate(1);
+			this->_node_alloc.construct(this->_head, Node());
+			// this->_head->data = this->_node_alloc.allocate(1);
+			// this->_node_alloc.construct(this->_head->data, value_type())
+		}
+
+		RB_Tree(const _Compare* comp,
+				const allocator_type* a = allocator_type())
+		: 
+
+		~RB_Tree()
+		{
+			_destroy(this->_root);
+			this->_node_alloc.destroy(this->_nill);
+			this->_node_alloc.deallocate(this->_nill, 1);
+			// this->_node_alloc.destroy(this->_head->data);
+			// this->_node_alloc.deallocate(this->_head->data, 1);
+			this->_node_alloc.destroy(this->_head);
+			this->_node_alloc.deallocate(this->_head, 1);
+		}
+
+		void	insert(value_type value)
+		{
+			node_pointer new_node(value);
+
+			++this->_size;
+			if (_is_nill(this->_root))
+				this->_root = new_node;
+			else
+			{
+				node_pointer __tmp = this->_root;
+				while (!_is_nill(__tmp))
+				{
+					if (!_is_nill(__tmp->left) && _comp(value, *__tmp->base()))
+						__tmp = __tmp->left;
+					if (!_is_nill(__tmp->right) && _comp(*__tmp->base(), value))
+						__tmp = __tmp->right;
+					else
+						throw(std::invalid_argument("ft::RB_Tree canno't insert two node as the same value"));
+				}
+				__tmp = __tmp->parent;
+
+				if (!_is_nill(__tmp->left) && _comp(value, *__tmp->base()))
+					__tmp->left = new_node;
+				if (!_is_nill(__tmp->right) && _comp(*__tmp->base(), value))
+					__tmp->right = new_node;
+
+				new_node->parent = __tmp;
+				new_node->color = RED;
+
+				// _fix_height(new_node);
+			}
+		}
+
+		node_pointer min(node_pointer node = NULL) const
+		{ return _min(node == NULL ? this->_root : node); }
+
+		node_pointer max(node_pointer node = NULL) const
+		{ return _max(node == NULL ? this->_root : node); }
+
+		iterator find(const value_type& value, node_pointer node = NULL) const
+		{
+			if (node == NULL)
+				node = this->_root;
+			while (!is_nill(node))
+			{
+				if (!is_nill(node->left) && _comp(value, *node->value))
+					node = node->left;
+				else if (!is_nill(node->right) && _comp(*node->value, value))
+					node = node->right;
+				else
+					break;
+			}
+			return iterator(node);
+		}
+
+		node_pointer get_node(const value_type& value, node_pointer node = NULL) const
+		{
+			if (node == NULL)
+				node = this->_root;
+			while (!is_nill(node))
+			{
+				if (!is_nill(node->left) && _comp(value, *node->value))
+					node = node->left;
+				else if (!is_nill(node->right) && _comp(*node->value, value))
+					node = node->right;
+				else
+					break;
+			}
+			return iterator(node);
+		}
+
+		size_type count(node_pointer node = NULL) const
+		{
+			if (node == NULL)
+				node = this->_root;
+			if (_is_nill(node))
+				return 0;
+
+			size_type nb_node = 0;
+			nb_node += count(node->left);
+			nb_node += count(node->right);
+
+			return nb_node;
+		}
+
+		void	display() const
+		{
+			_display(this->_root, "", true);
+		}
 
 	private:
-		typedef typename Node<_Tp>	Node;
+		typedef Node<_Tp>	Node;
 
 		allocator_type	_val_alloc;
 		node_allocator	_node_alloc;
@@ -118,7 +238,7 @@ namespace ft
 
 		void	_destroy(node_pointer node)
 		{
-			if (is_nill(node))
+			if (_is_nill(node))
 				return ;
 
 			_destroy(node->left);
@@ -153,107 +273,23 @@ namespace ft
 			node->right = parent;
 		}
 
-		void	_insert_value(pointer value)
+		void _display(node_pointer root, std::string indent, bool last) const
 		{
-			node_pointer new_node(value);
-
-			++this->_size;
-			if (_is_nill(this->_root))
-				this->_root = new_node;
-			else
-			{
-				node_pointer __tmp = this->_root;
-				while (!_is_nill(__tmp))
-				{
-					if (!_is_nill(__tmp->left) && _comp(value, *__tmp->value))
-						__tmp = __tmp->left;
-					if (!_is_nill(__tmp->right) && _comp(*__tmp->value, value))
-						__tmp = __tmp->right;
-					else
-						throw(std::invalid_argument("ft::RB_Tree canno't insert two node as the same value"));
+			if (!_is_nill(root)) {
+				std::cout << indent;
+				if (last) {
+					std::cout << "R----";
+					indent += "   ";
+				} else {
+					std::cout << "L----";
+					indent += "|  ";
 				}
-				__tmp = __tmp->parent;
 
-				if (!_is_nill(__tmp->left) && _comp(value, *__tmp->value))
-					__tmp->left = new_node;
-				if (!_is_nill(__tmp->right) && _comp(*__tmp->value, value))
-					__tmp->right = new_node;
-
-				new_node->parent = __tmp;
-				new_node->color = RED;
-
-				// _fix_height(new_node);
+				std::string sColor = root->color ? "BLACK" : "RED";
+				std::cout << root->base() << "(" << sColor << ")" << std::endl;
+				printHelper(root->left, indent, false);
+				printHelper(root->right, indent, true);
 			}
-		}
-
-	public:
-
-		RB_Tree()
-		: _root()
-		{
-			this->_nill = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(this->_nill, Node<value_type>());
-			this->_head = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(this->_head, Node<value_type>());
-			// this->_head->data = this->_node_alloc.allocate(1);
-			// this->_node_alloc.construct(this->_head->data, value_type())
-		}
-
-		~RB_Tree()
-		{
-			_destroy(this->_root);
-			this->_node_alloc.destroy(this->_nill);
-			this->_node_alloc.deallocate(this->_nill, 1);
-			// this->_node_alloc.destroy(this->_head->data);
-			// this->_node_alloc.deallocate(this->_head->data, 1);
-			this->_node_alloc.destroy(this->_head);
-			this->_node_alloc.deallocate(this->_head, 1);
-		}
-
-		node_pointer min(node_pointer node = this->root) const
-		{ return _min(node); }
-
-		node_pointer max(node_pointer node = this->root) const
-		{ return _max(node); }
-
-		iterator find(const value_type& value, node_pointer node = this->_root) const
-		{
-			while (!is_nill(node))
-			{
-				if (!is_nill(node->left) && _comp(value, *node->value))
-					node = node->left;
-				else if (!is_nill(node->right) && _comp(*node->value, value))
-					node = node->right;
-				else
-					break;
-			}
-			return iterator(node);
-		}
-
-		node_pointer get_node(const value_type& value, node_pointer node = this->_root) const
-		{
-			while (!is_nill(node))
-			{
-				if (!is_nill(node->left) && _comp(value, *node->value))
-					node = node->left;
-				else if (!is_nill(node->right) && _comp(*node->value, value))
-					node = node->right;
-				else
-					break;
-			}
-			return iterator(node);
-		}
-
-		size_type count(node_pointer node = this->root) const
-		{
-			if (_is_nill(node))
-				return 0;
-
-			size_type nb_node = 0;
-			nb_node += count(node->left);
-			nb_node += count(node->right);
-
-			return nb_node;
 		}
 
 	};
