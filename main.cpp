@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 
-#ifndef STD
+#ifdef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
@@ -21,13 +21,13 @@
 	// #include <type_traits>
 	namespace ft = std;
 #else
-	#include "includes/vector.hpp"
-	#include "includes/stack.hpp"
-	#include "includes/iterator.hpp"
-	#include "includes/traits.hpp"
-	#include "includes/utils.hpp"
-	#include "includes/RB_Tree.hpp"
-	#include "includes/RB_Tree_iterator.hpp"
+	#include <vector.hpp>
+	#include <stack.hpp>
+	#include <iterator.hpp>
+	#include <traits.hpp>
+	#include <utils.hpp>
+	#include <RB_Tree.hpp>
+	#include <RB_Tree_iterator.hpp>
 #endif
 // #include <typeinfo>
 
@@ -52,17 +52,15 @@ int main(void)
 {
 	try
 	{
-		std::map m;
-		/*
 		ft::RB_Tree<int> t;
 
+		t.insert(40);
 		t.insert(2);
-		t.insert(3);
 		t.insert(4);
-		t.insert(5);
-		t.insert(6);
+		// t.insert(6);
+		// t.insert(5);
+		// t.insert(6);
 		t.display();
-		*/
 	}
 	catch (std::exception const & e)
 	{
