@@ -16,61 +16,119 @@
 #include <memory>
 #include <functional>
 #include <traits.hpp>
+#include <RB_Tree.hpp>
 
 namespace ft
 {
 	template<typename _Tp>
-	class RB_Tree_iterator
+	struct RB_Tree_iterator
 	{
 	public:
-		typedef _Tp  value_type;
-		typedef _Tp& reference;
-		typedef _Tp* pointer;
+		typedef _Tp								value_type;
+		typedef _Tp&							reference;
+		typedef _Tp*							pointer;
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef ptrdiff_t						difference_type;
+		typedef Node::_Base						_Base;
 
-	private:
-		_Tp _current;
+		_Base _node;
 
-		typedef iterator_traits<_Tp> traits_type;
-
-	public:
 		RB_Tree_iterator()
-		: _current(_Tp())
+		: _node(_Tp())
 		{ }
 
-		explicit RB_Tree_iterator(value_type x)	
-		: _current(x)
+		explicit RB_Tree_iterator(_Base x)	
+		: _node(Node(x))
 		{ }
-
-		value_type base() const
-		{ return this->_current; }
 
 		reference operator*() const
-		{ return *_current; }
+		{ return *_node; }
 
 		pointer operator->() const
-		{ return _current; }
+		{ return _node; }
 
-		/* TODO */
 		RB_Tree_iterator& operator++()
-		{ }
+		{
+			_node = _increment(_node);
+			return (*this);
+		}
 
 		RB_Tree_iterator operator++(int)
-		{ }
+		{
+			RB_Tree_iterator<value_type> tmp = *this;
+			_node = _increment(_node);
+			return tmp;
+		}
 
 		RB_Tree_iterator& operator--()
-		{ }
+		{
+			_node = _decrement(_node);
+			return (*this);
+		}
 
 		RB_Tree_iterator operator--(int)
-		{ }
-		/********/
+		{
+			RB_Tree_iterator<value_type> tmp = *this;
+			_node = _decrement(_node);
+			return tmp;
+		}
 
-		friend inline bool operator==(const RB_Tree_iterator& lhs, const RB_Tree_iterator& rhs)
+		friend inline bool operator==(const RB_Tree_iterator& lhs,
+									  const RB_Tree_iterator& rhs)
 		{ return lhs.base() == rhs.base(); }
 
-		friend inline bool operator!=(const RB_Tree_iterator& lhs, const RB_Tree_iterator& rhs)
+		friend inline bool operator!=(const RB_Tree_iterator& lhs,
+									  const RB_Tree_iterator& rhs)
 		{ return lhs.base() != rhs.base(); }
+
+
+	private:
+		_Base _increment(_Base *node)
+		{
+			if (node->right != 0)
+			{
+				node = node->right;
+				while (node->left != 0)
+					node = node->left;
+			}
+			else
+			{
+				_Base *tmp = node->parent;
+				while (node == tmp->right)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				if (node->right != tmp)
+					node = tmp;
+				
+			}
+			return node;
+		}
+
+		_Base _decrement(_Base *node)
+		{
+			if (node->color == RED && node->parent->parent == node)
+				node = node->right;
+			else if (node->left != 0)
+			{
+				_Base *tmp = node->left;
+				while (tmp->right != 0)
+					tmp = tmp->right;
+				node = tmp;
+			}
+			else
+			{
+				value_type *tmp = node->parent;
+				while (node == tmp->left)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				node = tmp;
+			}
+			return node;
+		}
 	};
 
 } /* namespace ft */

@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 #ifdef STD
 	#include <map>
@@ -54,13 +55,13 @@ int main(void)
 	{
 		ft::RB_Tree<int> t;
 
-		t.insert(40);
-		t.insert(2);
-		t.insert(4);
-		// t.insert(6);
-		// t.insert(5);
-		// t.insert(6);
+		srand(time(NULL));
+		for (int i = 0; i < SIZE; ++i)
+			t.insert(rand() % (30));
+		t.insert(10);
 		t.display();
+		ft::RB_Tree<int>::iterator it = t.find(10);
+		std::cout << *it << std::endl;
 	}
 	catch (std::exception const & e)
 	{

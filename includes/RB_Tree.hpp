@@ -26,11 +26,13 @@ namespace ft
 	struct	Node
 	{
 	public:
-		_Tp  *data;
-		bool color;
-		Node *parent;
-		Node *left;
-		Node *right;
+		typedef Node* _Base;
+
+		_Tp			*data;
+		node_color	color;
+		_Base		parent;
+		_Base		left;
+		_Base		right;
 
 		Node()
 		: data(NULL),
@@ -72,7 +74,7 @@ namespace ft
 			 typename _Alloc = std::allocator<_Tp> >
 	class RB_Tree
 	{
-	private:
+	protected:
 		typedef Node<_Tp>	_Node;
 
 	public:
@@ -103,8 +105,6 @@ namespace ft
 		  _size(0)
 		{
 			this->_root = NULL;
-			this->_nill = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(this->_nill, _Node());
 			this->_head = this->_node_alloc.allocate(1);
 			this->_node_alloc.construct(this->_head, _Node());
 		}
@@ -112,15 +112,12 @@ namespace ft
 		~RB_Tree()
 		{
 			_destroy(this->_root);
-			_delete_node(this->_nill);
 			_delete_node(this->_head);
 		}
 
 		void	insert(const value_type &x)
 		{
-			// int i = 1000;
 			node_pointer new_node = _new_node(x);
-			// (void)x;
 
 			if (_is_nill(this->_root))
 				this->_root = new_node;
@@ -140,7 +137,7 @@ namespace ft
 					__tmp->left = new_node; 
 				new_node->color = RED;
 
-				_rebalance_insertion(new_node);
+				// _rebalance_insertion(new_node);
 			}
 		}
 
@@ -175,9 +172,9 @@ namespace ft
 				node = this->_root;
 			while (!_is_nill(node))
 			{
-				if (!_is_nill(node->left) && _comp(value, *node->value))
+				if (!_is_nill(node->left) && _comp(value, *node->data))
 					node = node->left;
-				else if (!_is_nill(node->right) && _comp(*node->value, value))
+				else if (!_is_nill(node->right) && _comp(*node->data, value))
 					node = node->right;
 				else
 					break;
@@ -191,9 +188,9 @@ namespace ft
 				node = this->_root;
 			while (!_is_nill(node))
 			{
-				if (!_is_nill(node->left) && _comp(value, *node->value))
+				if (!_is_nill(node->left) && _comp(value, *node->data))
 					node = node->left;
-				else if (!_is_nill(node->right) && _comp(*node->value, value))
+				else if (!_is_nill(node->right) && _comp(*node->data, value))
 					node = node->right;
 				else
 					break;
@@ -208,7 +205,7 @@ namespace ft
 			if (_is_nill(node))
 				return 0;
 
-			size_type nb_node = 0;
+			size_type nb_node = 1;
 			nb_node += count(node->left);
 			nb_node += count(node->right);
 
@@ -218,13 +215,12 @@ namespace ft
 		void	display() const
 		{ _display(this->_root, "", true); }
 
-	private:
+	protected:
 		allocator_type	_val_alloc;
 		node_allocator	_node_alloc;
 		value_compare	_comp;
 		node_pointer	_root;
 		node_pointer	_head;
-		node_pointer	_nill;
 		size_type		_size;
 
 		/**
@@ -233,62 +229,7 @@ namespace ft
 		 * @param node The node inserted
 		 */
 		void	_rebalance_insertion(node_pointer node)
-		{
-			node_pointer parent = node->parent;
-			while (!_is_nill(parent) && parent->color == RED)
-			{
-				node_pointer grandparent = parent->parent;
-				if (parent == grandparent->left)
-				{
-					node_pointer uncle = grandparent->right;
-					if (!_is_nill(uncle) && uncle->color == RED)
-					{
-						parent->color = BLACK;
-						uncle->color = BLACK;
-						grandparent->color = RED;
-						node = grandparent;
-						parent = node->parent;
-					}
-					else
-					{
-						if (node == parent->right)
-						{
-							node = parent;
-							_rotate_left(node);
-							parent = node->parent;
-						}
-						parent->color = BLACK;
-						grandparent->color = RED;
-						_rotate_right(grandparent);
-					}
-				}
-				else
-				{
-					node_pointer uncle = grandparent->left;
-					if (!_is_nill(uncle) && uncle->color == RED)
-					{
-						parent->color = BLACK;
-						uncle->color = BLACK;
-						grandparent->color = RED;
-						node = grandparent;
-						parent = node->parent;
-					}
-					else
-					{
-						if (node == parent->left)
-						{
-							node = parent;
-							_rotate_right(node);
-							parent = node->parent;
-						}
-						parent->color = BLACK;
-						grandparent->color = RED;
-						_rotate_left(grandparent);
-					}
-				}
-			}
-			this->_root->color = BLACK;
-		}
+		{ (void)node; }
 
 		/**
 		 * @brief Find the position to insert a node
@@ -299,6 +240,7 @@ namespace ft
 		node_pointer	_find_insertion_pos(const value_type& x)
 		{
 			node_pointer __tmp = this->_root;
+
 			while (!_is_nill(__tmp))
 			{
 				if (_comp(*__tmp->data, x))
@@ -352,7 +294,7 @@ namespace ft
 		 * @return true if the node is nill, else false
 		 */
 		inline bool _is_nill(const node_pointer node) const
-		{ return (node == NULL || node == this->_nill || node == this->_head); }
+		{ return (node == NULL || node == this->_head); }
 
 		/**
 		 * @brief Destroy and deallocate the node
@@ -441,9 +383,9 @@ namespace ft
 		{
 			node_pointer new_node = this->_node_alloc.allocate(1);
 			this->_node_alloc.construct(new_node, _Node(_new_value(x)));
-			new_node->left = this->_nill;
-			new_node->right = this->_nill;
-			new_node->parent = this->_nill;
+			new_node->left = 0;
+			new_node->right = 0;
+			new_node->parent = 0;
 			return new_node;
 		}
 	};
