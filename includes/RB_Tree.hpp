@@ -16,14 +16,14 @@
 #include <memory>
 #include <functional>
 #include <stdexcept>
-#include <RB_Tree_iterator.hpp>
+#include <traits.hpp>
 
 namespace ft
 {
 	enum node_color { BLACK = true, RED = false };
 
 	template<typename _Tp>
-	struct	Node
+	struct Node
 	{
 	public:
 		typedef Node* _Base;
@@ -70,6 +70,117 @@ namespace ft
 		}
 	};
 
+	template<typename _Tp>
+	struct RB_Tree_iterator
+	{
+	public:
+		typedef _Tp								value_type;
+		typedef _Tp&							reference;
+		typedef _Tp*							pointer;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef ptrdiff_t						difference_type;
+		typedef Node<_Tp>*						_Base;
+
+		_Base _node;
+
+		RB_Tree_iterator()
+		: _node(_Tp())
+		{ }
+
+		explicit RB_Tree_iterator(_Base x)	
+		: _node(x)
+		{ }
+
+		reference operator*() const
+		{ return *_node->data; }
+
+		pointer operator->() const
+		{ return _node->data; }
+
+		RB_Tree_iterator& operator++()
+		{
+			_node = _increment(_node);
+			return (*this);
+		}
+
+		RB_Tree_iterator operator++(int)
+		{
+			RB_Tree_iterator<value_type> tmp = *this;
+			_node = _increment(_node);
+			return tmp;
+		}
+
+		RB_Tree_iterator& operator--()
+		{
+			_node = _decrement(_node);
+			return (*this);
+		}
+
+		RB_Tree_iterator operator--(int)
+		{
+			RB_Tree_iterator<value_type> tmp = *this;
+			_node = _decrement(_node);
+			return tmp;
+		}
+
+		friend inline bool operator==(const RB_Tree_iterator& lhs,
+									  const RB_Tree_iterator& rhs)
+		{ return lhs.base() == rhs.base(); }
+
+		friend inline bool operator!=(const RB_Tree_iterator& lhs,
+									  const RB_Tree_iterator& rhs)
+		{ return lhs.base() != rhs.base(); }
+
+
+	private:
+		_Base _increment(_Base *node)
+		{
+			if (node->right != 0)
+			{
+				node = node->right;
+				while (node->left != 0)
+					node = node->left;
+			}
+			else
+			{
+				_Base *tmp = node->parent;
+				while (node == tmp->right)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				if (node->right != tmp)
+					node = tmp;
+				
+			}
+			return node;
+		}
+
+		_Base _decrement(_Base *node)
+		{
+			if (node->color == RED && node->parent->parent == node)
+				node = node->right;
+			else if (node->left != 0)
+			{
+				_Base *tmp = node->left;
+				while (tmp->right != 0)
+					tmp = tmp->right;
+				node = tmp;
+			}
+			else
+			{
+				value_type *tmp = node->parent;
+				while (node == tmp->left)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				node = tmp;
+			}
+			return node;
+		}
+	};
+
 	template<typename _Tp, typename _Compare = std::less<_Tp>,
 			 typename _Alloc = std::allocator<_Tp> >
 	class RB_Tree
@@ -104,26 +215,28 @@ namespace ft
 		  _comp(comp),
 		  _size(0)
 		{
-			this->_root = NULL;
-			this->_head = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(this->_head, _Node());
+			this->_root = 0;
+			this->_header = this->_node_alloc.allocate(1);
+			this->_node_alloc.construct(this->_header, _Node());
 		}
 
 		~RB_Tree()
 		{
 			_destroy(this->_root);
-			_delete_node(this->_head);
+			_delete_node(this->_header);
 		}
 
 		void	insert(const value_type &x)
 		{
+			pair<node_pointer, node_pointer> pos = 
+				_insert_unique_pos(x);
 			node_pointer new_node = _new_node(x);
 
 			if (_is_nill(this->_root))
 				this->_root = new_node;
 			else
 			{
-				node_pointer __tmp = _find_insertion_pos(x);
+				node_pointer __tmp = _insert_unique_pos(x);
 				if (__tmp == NULL)
 				{
 					_delete_node(new_node);
@@ -172,9 +285,9 @@ namespace ft
 				node = this->_root;
 			while (!_is_nill(node))
 			{
-				if (!_is_nill(node->left) && _comp(value, *node->data))
+				if (_comp(value, *node->data))
 					node = node->left;
-				else if (!_is_nill(node->right) && _comp(*node->data, value))
+				else if (_comp(*node->data, value))
 					node = node->right;
 				else
 					break;
@@ -186,15 +299,17 @@ namespace ft
 		{
 			if (node == NULL)
 				node = this->_root;
-			while (!_is_nill(node))
+			while (node != 0)
 			{
-				if (!_is_nill(node->left) && _comp(value, *node->data))
+				if (_comp(value, *node->data))
 					node = node->left;
-				else if (!_is_nill(node->right) && _comp(*node->data, value))
+				else if (_comp(*node->data, value))
 					node = node->right;
 				else
 					break;
 			}
+			if (node == 0)
+				return NULL;
 			return iterator(node);
 		}
 
@@ -202,7 +317,7 @@ namespace ft
 		{
 			if (node == NULL)
 				node = this->_root;
-			if (_is_nill(node))
+			if (node == 0)
 				return 0;
 
 			size_type nb_node = 1;
@@ -220,7 +335,7 @@ namespace ft
 		node_allocator	_node_alloc;
 		value_compare	_comp;
 		node_pointer	_root;
-		node_pointer	_head;
+		node_pointer	_header;
 		size_type		_size;
 
 		/**
@@ -234,31 +349,33 @@ namespace ft
 		/**
 		 * @brief Find the position to insert a node
 		 * 
-		 * @param x The value of the node to insert
+		 * @param new_val The value of the node to insert
 		 * @return node_pointer the position to insert
 		 */
-		node_pointer	_find_insertion_pos(const value_type& x)
+		node_pointer	_insert_unique_pos(const value_type& new_val)
 		{
-			node_pointer __tmp = this->_root;
+			typedef ft::pair<node_pointer, node_pointer> res;
+			node_pointer __x = this->_root;
+			node_pointer __y;
+			bool comp = true;
 
-			while (!_is_nill(__tmp))
+			while (__x != 0)
 			{
-				if (_comp(*__tmp->data, x))
-				{
-					if (_is_nill(__tmp->right))
-						return (__tmp);
-					__tmp = __tmp->right;
-				}
-				else if (_comp(x, *__tmp->data))
-				{
-					if (_is_nill(__tmp->left))
-						return (__tmp);
-					__tmp = __tmp->left;
-				}
-				else
-					return (NULL);
+				__y = __x;
+				comp = _comp(new_val, *__x->data);
+				__x = comp ? __x->left : __x->right;
 			}
-			return (NULL);
+			iterator __it = iterator(__y);
+			if (comp)
+			{
+				if (it == begin())
+					return res(__x, __y);
+				else
+					--it;
+			}
+			if (_comp(*it, new_val))
+				return res(__x, __y);
+			return res(it.node, 0);
 		}
 
 		/**
@@ -269,7 +386,7 @@ namespace ft
 		 */
 		inline node_pointer _min(node_pointer node) const
 		{
-			while (!_is_nill(node->left))
+			while (node->left != 0)
 				node = node->left;
 			return node;
 		}
@@ -282,7 +399,7 @@ namespace ft
 		 */
 		inline node_pointer _max(node_pointer node) const
 		{
-			while (!_is_nill(node->right))
+			while (node->right != 0)
 				node = node->right;
 			return node;
 		}
@@ -294,7 +411,7 @@ namespace ft
 		 * @return true if the node is nill, else false
 		 */
 		inline bool _is_nill(const node_pointer node) const
-		{ return (node == NULL || node == this->_head); }
+		{ return (node == NULL || node == this->_header); }
 
 		/**
 		 * @brief Destroy and deallocate the node
