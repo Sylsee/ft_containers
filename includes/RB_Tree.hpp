@@ -6,7 +6,7 @@
 /*   By: spoliart <sylvio.poliart@gmail.com>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/07 14:08:16 by spoliart          #+#    #+#             */
-/*   Updated: 2022/05/07 14:08:19 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/05/31 21:26:58 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 #include <memory>
 #include <functional>
 #include <stdexcept>
+#include <cstddef>
 #include <traits.hpp>
+#include <iterator.hpp>
+#include <vector>
 
 namespace ft
 {
@@ -35,7 +38,7 @@ namespace ft
 		_Base		right;
 
 		Node()
-		: data(NULL),
+		: data(0),
 		  color(BLACK)
 		{ }
 
@@ -123,17 +126,20 @@ namespace ft
 			return tmp;
 		}
 
-		friend inline bool operator==(const RB_Tree_iterator& lhs,
-									  const RB_Tree_iterator& rhs)
-		{ return lhs.base() == rhs.base(); }
+		friend bool operator==(const RB_Tree_iterator<_Tp>& lhs,
+							   const RB_Tree_iterator<_Tp>& rhs)
+		{ return lhs._node == rhs._node; }
 
-		friend inline bool operator!=(const RB_Tree_iterator& lhs,
-									  const RB_Tree_iterator& rhs)
-		{ return lhs.base() != rhs.base(); }
+		friend bool operator!=(const RB_Tree_iterator<_Tp>& lhs,
+							   const RB_Tree_iterator<_Tp>& rhs)
+		{ return lhs._node != rhs._node; }
+
+		inline _Base	base()
+		{ return _node; }
 
 
 	private:
-		_Base _increment(_Base *node)
+		_Base _increment(_Base node)
 		{
 			if (node->right != 0)
 			{
@@ -143,7 +149,7 @@ namespace ft
 			}
 			else
 			{
-				_Base *tmp = node->parent;
+				_Base tmp = node->parent;
 				while (node == tmp->right)
 				{
 					node = tmp;
@@ -151,25 +157,24 @@ namespace ft
 				}
 				if (node->right != tmp)
 					node = tmp;
-				
 			}
 			return node;
 		}
 
-		_Base _decrement(_Base *node)
+		_Base _decrement(_Base node)
 		{
 			if (node->color == RED && node->parent->parent == node)
 				node = node->right;
 			else if (node->left != 0)
 			{
-				_Base *tmp = node->left;
+				_Base tmp = node->left;
 				while (tmp->right != 0)
 					tmp = tmp->right;
 				node = tmp;
 			}
 			else
 			{
-				value_type *tmp = node->parent;
+				_Base tmp = node->parent;
 				while (node == tmp->left)
 				{
 					node = tmp;
@@ -188,6 +193,9 @@ namespace ft
 	protected:
 		typedef Node<_Tp>	_Node;
 
+#include <../visualizer/map_display.hpp>
+
+
 	public:
 		typedef _Tp									 value_type;
 		typedef value_type*							 pointer;
@@ -199,8 +207,8 @@ namespace ft
 
 		typedef RB_Tree_iterator<value_type>		 iterator;
 		typedef RB_Tree_iterator<const value_type>	 const_iterator;
-		typedef ft::reverse_iterator<iterator>		 reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+		typedef ft::reverse_iterator<iterator>			 reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>	 const_reverse_iterator;
 
 		typedef _Compare							 value_compare;
 		typedef _Alloc								 allocator_type;
@@ -212,47 +220,17 @@ namespace ft
 				const allocator_type &a = allocator_type())
 		: _val_alloc(a),
 		  _node_alloc(node_allocator()),
-		  _comp(comp),
-		  _size(0)
+		  _compare(comp)
 		{
-			this->_root = 0;
-			this->_header = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(this->_header, _Node());
+			_header.parent = 0;
+			_header.right = &_header;
+			_header.left = &_header;
+			_header.color = RED;
+			_size = 0;
 		}
 
 		~RB_Tree()
-		{
-			_destroy(this->_root);
-			_delete_node(this->_header);
-		}
-
-		void	insert(const value_type &x)
-		{
-			pair<node_pointer, node_pointer> pos = 
-				_insert_unique_pos(x);
-			node_pointer new_node = _new_node(x);
-
-			if (_is_nill(this->_root))
-				this->_root = new_node;
-			else
-			{
-				node_pointer __tmp = _insert_unique_pos(x);
-				if (__tmp == NULL)
-				{
-					_delete_node(new_node);
-					return ;
-				}
-
-				new_node->parent = __tmp;
-				if (_comp(*__tmp->data, *new_node->data))
-					__tmp->right = new_node;
-				else if (_comp(*new_node->data, *__tmp->data))
-					__tmp->left = new_node; 
-				new_node->color = RED;
-
-				// _rebalance_insertion(new_node);
-			}
-		}
+		{ _destroy(_header.parent); }
 
 		/**
 		 * @brief Get the minimum node from a node
@@ -260,8 +238,8 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return node_pointer the minimum node
 		 */
-		node_pointer min(node_pointer node = NULL) const
-		{ return _min(node == NULL ? this->_root : node); }
+		node_pointer min(node_pointer node = 0) const
+		{ return _min(node == 0 ? _header.parent : node); }
 
 		/**
 		 * @brief Get the maximum node from a node
@@ -269,8 +247,8 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return node_pointer the maximum node
 		 */
-		node_pointer max(node_pointer node = NULL) const
-		{ return _max(node == NULL ? this->_root : node); }
+		node_pointer max(node_pointer node = 0) const
+		{ return _max(node == 0 ? _header.parent : node); }
 
 		/**
 		 * @brief Get node from a value
@@ -279,44 +257,46 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return iterator the iterator of the node
 		 */
-		iterator find(const value_type& value, node_pointer node = NULL) const
+		iterator find(const value_type& value, node_pointer node = 0)
 		{
-			if (node == NULL)
-				node = this->_root;
-			while (!_is_nill(node))
-			{
-				if (_comp(value, *node->data))
-					node = node->left;
-				else if (_comp(*node->data, value))
-					node = node->right;
-				else
-					break;
-			}
-			return iterator(node);
-		}
-
-		node_pointer get_node(const value_type& value, node_pointer node = NULL) const
-		{
-			if (node == NULL)
-				node = this->_root;
+			if (node == 0)
+				node = _header.parent;
 			while (node != 0)
 			{
-				if (_comp(value, *node->data))
+				if (_compare(value, *node->data))
 					node = node->left;
-				else if (_comp(*node->data, value))
+				else if (_compare(*node->data, value))
 					node = node->right;
 				else
 					break;
 			}
 			if (node == 0)
-				return NULL;
+				return iterator();
 			return iterator(node);
 		}
 
-		size_type count(node_pointer node = NULL) const
+		node_pointer get_node(const value_type& value, node_pointer node = 0)
 		{
-			if (node == NULL)
-				node = this->_root;
+			if (node == 0)
+				node = _header.parent;
+			while (node != 0)
+			{
+				if (_compare(value, *node->data))
+					node = node->left;
+				else if (_compare(*node->data, value))
+					node = node->right;
+				else
+					break;
+			}
+			if (node == 0)
+				return 0;
+			return node;
+		}
+
+		size_type count(node_pointer node = 0) const
+		{
+			if (node == 0)
+				node = _header.parent;
 			if (node == 0)
 				return 0;
 
@@ -327,24 +307,186 @@ namespace ft
 			return nb_node;
 		}
 
-		void	display() const
-		{ _display(this->_root, "", true); }
+		inline iterator begin()
+		{ return iterator(_header.left); }
 
+		inline const_iterator begin() const
+		{ return const_iterator(_header.left); }
+
+		inline iterator end()
+		{ return iterator(_header.right); }
+
+		inline const_iterator end() const
+		{ return const_iterator(_header.right); }
+
+		inline reverse_iterator rbegin()
+		{ return reverse_iterator(_header.right); }
+
+		inline const_reverse_iterator rbegin() const
+		{ return const_reverse_iterator(_header.right); }
+
+		inline reverse_iterator rend()
+		{ return reverse_iterator(_header.left); }
+
+		inline const_reverse_iterator rend() const
+		{ return const_reverse_iterator(_header.left); }
+
+		pair<iterator, bool>	insert(const value_type& value)
+		{
+			pair<node_pointer, node_pointer> pos = 
+				_insert_unique_pos(value);
+
+			if (pos.second)
+			{
+				_insert(pos.first, pos.second, _new_node(value));
+				return pair<iterator, bool>(iterator(pos.first), true);
+			}
+			return pair<iterator, bool>(iterator(pos.first), false);
+		}
+
+		_Node			_header;
 	protected:
 		allocator_type	_val_alloc;
 		node_allocator	_node_alloc;
-		value_compare	_comp;
-		node_pointer	_root;
-		node_pointer	_header;
+		value_compare	_compare;
 		size_type		_size;
+
+		iterator _insert(node_pointer pos, node_pointer parent, node_pointer new_node)
+		{
+			bool insert_left = (pos != 0 || parent == &_header
+								|| _compare(*new_node->data, *parent->data));
+
+			new_node->parent = parent;
+			new_node->left = 0;
+			new_node->right = 0;
+			new_node->color = RED;
+
+			if (insert_left)
+			{
+				parent->left = new_node;
+				if (parent == &_header)
+				{
+					_header.parent = new_node;
+					_header.right = new_node;
+				}
+				else if (parent == _header.left)
+					_header.left = new_node;
+			}
+			else
+			{
+				parent->right = new_node;
+				if (parent == _header.right)
+					_header.right = new_node;
+			}
+			_rebalance_insertion(new_node);
+			++this->_size;
+			return iterator(new_node);
+		}
 
 		/**
 		 * @brief Fix the height of the tree after an insertion
 		 * 
 		 * @param node The node inserted
 		 */
-		void	_rebalance_insertion(node_pointer node)
-		{ (void)node; }
+		void	_rebalance_insertion(node_pointer new_node)
+		{
+			node_pointer& _root = _header.parent;
+
+			while (new_node != _root && new_node->parent->color == RED)
+			{
+				node_pointer const gp = new_node->parent->parent;
+
+				if (new_node->parent == gp->left)
+				{
+					node_pointer const tmp = gp->right;
+					if (tmp && tmp->color == RED)
+					{
+						new_node->parent->color = BLACK;
+						tmp->color = BLACK;
+						gp->color = RED;
+						new_node = gp;
+					}
+					else
+					{
+						if (new_node == new_node->parent->right)
+						{
+							new_node = new_node->parent;
+							_rotate_left(new_node);
+						}
+						new_node->parent->color = BLACK;
+						gp->color = RED;
+						_rotate_right(gp);
+					}
+				}
+				else
+				{
+					node_pointer const tmp = gp->left;
+					if (tmp && tmp->color == RED)
+					{
+						new_node->parent->color = BLACK;
+						tmp->color = BLACK;
+						gp->color = RED;
+						new_node = gp;
+					}
+					else
+					{
+						if (new_node == new_node->parent->left)
+						{
+							new_node = new_node->parent;
+							_rotate_right(new_node);
+						}
+						new_node->parent->color = BLACK;
+						gp->color = RED;
+						_rotate_left(gp);
+					}
+				}
+			}
+			_root->color = BLACK;
+		}
+
+		void	_rotate_left(node_pointer const x)
+		{
+			node_pointer const tmp = x->right;
+
+			x->right = tmp->left;
+			if (tmp->left != 0)
+				tmp->left->parent = x;
+			tmp->parent = x->parent;
+
+			if (x == _header.parent)
+				_header.parent = tmp;
+			else if (x == x->parent->left)
+				x->parent->left = tmp;
+			else
+				x->parent->right = tmp;
+			tmp->left = x;
+			x->parent = tmp;
+		}
+
+		void	_rotate_right(node_pointer const x)
+		{
+			node_pointer const tmp = x->left;
+
+			x->left = tmp->right;
+			if (tmp->right != 0)
+				tmp->right->parent = x;
+			tmp->parent = x->parent;
+
+			if (x == _header.parent)
+				_header.parent = tmp;
+			else if (x == x->parent->right)
+				x->parent->right = tmp;
+			else
+				x->parent->left = tmp;
+			tmp->right = x;
+			x->parent = tmp;
+		}
+
+		inline node_pointer	_right_most()
+		{ return this->_header.right; }
+
+		inline node_pointer	_left_most()
+		{ return this->_header.left; }
 
 		/**
 		 * @brief Find the position to insert a node
@@ -352,30 +494,31 @@ namespace ft
 		 * @param new_val The value of the node to insert
 		 * @return node_pointer the position to insert
 		 */
-		node_pointer	_insert_unique_pos(const value_type& new_val)
+		ft::pair<node_pointer, node_pointer>
+		_insert_unique_pos(const value_type& new_val)
 		{
 			typedef ft::pair<node_pointer, node_pointer> res;
-			node_pointer __x = this->_root;
-			node_pointer __y;
+			node_pointer new_pos = _header.parent;
+			node_pointer parent = &_header;
 			bool comp = true;
 
-			while (__x != 0)
+			while (new_pos != 0)
 			{
-				__y = __x;
-				comp = _comp(new_val, *__x->data);
-				__x = comp ? __x->left : __x->right;
+				parent = new_pos;
+				comp = _compare(new_val, *new_pos->data);
+				new_pos = comp ? new_pos->left : new_pos->right;
 			}
-			iterator __it = iterator(__y);
+			iterator it = iterator(parent);
 			if (comp)
 			{
 				if (it == begin())
-					return res(__x, __y);
+					return res(new_pos, parent);
 				else
 					--it;
 			}
-			if (_comp(*it, new_val))
-				return res(__x, __y);
-			return res(it.node, 0);
+			if (_compare(*it, new_val))
+				return res(new_pos, parent);
+			return res(it._node, 0);
 		}
 
 		/**
@@ -405,20 +548,11 @@ namespace ft
 		}
 
 		/**
-		 * @brief Check if the node is nill
-		 * 
-		 * @param node The node to check
-		 * @return true if the node is nill, else false
-		 */
-		inline bool _is_nill(const node_pointer node) const
-		{ return (node == NULL || node == this->_header); }
-
-		/**
 		 * @brief Destroy and deallocate the node
 		 * 
 		 * @param node The node to delete
 		 */
-		inline void _delete_node(node_pointer node)
+		void _delete_node(node_pointer node)
 		{
 			if (node->data)
 			{
@@ -436,57 +570,12 @@ namespace ft
 		 */
 		void	_destroy(node_pointer node)
 		{
-			if (_is_nill(node))
+			if (node == 0)
 				return ;
 
 			_destroy(node->left);
 			_destroy(node->right);
 			_delete_node(node);
-		}
-
-		void	_rotate_left(node_pointer node)
-		{
-			if (_is_nill(node) || _is_nill(node->parent))
-				return ;
-
-			node_pointer parent = node->parent;
-
-			parent->right = node->left;
-			node->parent = parent->parent;
-			parent->parent = node;
-			node->left = parent;
-		}
-
-		void	_rotate_right(node_pointer node)
-		{
-			if (_is_nill(node) || _is_nill(node->parent))
-				return ;
-
-			node_pointer parent = node->parent;
-
-			parent->left = node->right;
-			node->parent = parent->parent;
-			parent->parent = node;
-			node->right = parent;
-		}
-
-		void _display(node_pointer root, std::string indent, bool last) const
-		{
-			if (!_is_nill(root)) {
-				std::cout << indent;
-				if (last) {
-					std::cout << "R----";
-					indent += "   ";
-				} else {
-					std::cout << "L----";
-					indent += "|  ";
-				}
-
-				std::string sColor = root->color ? "BLACK" : "RED";
-				std::cout << *root->data << "(" << sColor << ")" << std::endl;
-				_display(root->left, indent, false);
-				_display(root->right, indent, true);
-			}
 		}
 
 		inline pointer _new_value(const value_type &x)
@@ -496,7 +585,7 @@ namespace ft
 			return new_val;
 		}
 
-		inline node_pointer	_new_node(const value_type &x)
+		node_pointer	_new_node(const value_type &x)
 		{
 			node_pointer new_node = this->_node_alloc.allocate(1);
 			this->_node_alloc.construct(new_node, _Node(_new_value(x)));
@@ -506,8 +595,7 @@ namespace ft
 			return new_node;
 		}
 	};
-	
-	
+
 } /* namespace ft */
 
 

@@ -13,13 +13,13 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+// #include <bits/stl_tree.h>
 
 #ifdef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
 	#include <iterator>
-	// #include <type_traits>
 	namespace ft = std;
 #else
 	#include <vector.hpp>
@@ -29,7 +29,6 @@
 	#include <utils.hpp>
 	#include <RB_Tree.hpp>
 #endif
-// #include <typeinfo>
 
 class Test
 {
@@ -46,7 +45,7 @@ std::ostream&	operator<<(std::ostream& o, const Test& t)
 	return o;
 }
 
-#define SIZE 11
+#define SIZE 100
 
 int main(void)
 {
@@ -55,12 +54,14 @@ int main(void)
 		ft::RB_Tree<int> t;
 
 		srand(time(NULL));
-		for (int i = 0; i < SIZE; ++i)
-			t.insert(rand() % (30));
-		t.insert(10);
-		t.display();
-		ft::RB_Tree<int>::iterator it = t.find(10);
-		std::cout << *it << std::endl;
+		for (int i = 0; i < SIZE; ++i) {
+			int x = rand() % 100;
+			std::cout << x << " ";
+			t.insert(x);
+		}
+		std::cout << std::endl;
+		t.print_tree(t._header.parent);
+		std::cout << std::endl;
 	}
 	catch (std::exception const & e)
 	{
@@ -69,3 +70,26 @@ int main(void)
 
 	return 0;
 }
+/**
+ * header == root->parent
+ * header->right == right_most
+ * header->left == left_most
+ * header->parent == root
+ * 
+ */
+		/*
+		typedef std::pair<const int, u_int8_t> pair;
+		typedef std::_Rb_tree<int, pair, std::_Select1st<pair>, std::less<int> > tree;
+
+		tree t;
+
+		srand(time(NULL));
+		for (size_t i = 0; i < SIZE; ++i) {
+			t._M_insert_unique(pair(rand() % 50, rand() % 25 + 'a'));
+		}
+		tree::iterator it = t.begin();
+		while (it != t.end()) {
+			std::cout << it._M_node << ": " << (*it).first << std::endl;
+			++it;
+		}
+		*/
