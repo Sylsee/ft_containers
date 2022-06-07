@@ -31,20 +31,19 @@ namespace ft
 	public:
 		typedef Node* _Base;
 
-		_Tp			*data;
+		_Tp			data;
 		node_color	color;
 		_Base		parent;
 		_Base		left;
 		_Base		right;
 
 		Node()
-		: data(0),
-		  color(BLACK)
+		: color(RED)
 		{ }
 
-		Node(_Tp *x)
+		Node(_Tp x)
 		: data(x),
-		  color(BLACK)
+		  color(RED)
 		{ }
 
 		Node(const Node& rhs)
@@ -95,10 +94,10 @@ namespace ft
 		{ }
 
 		reference operator*() const
-		{ return *_node->data; }
+		{ return _node->data; }
 
 		pointer operator->() const
-		{ return _node->data; }
+		{ return &_node->data; }
 
 		RB_Tree_iterator& operator++()
 		{
@@ -195,6 +194,13 @@ namespace ft
 
 #include <../visualizer/map_display.hpp>
 
+	public:
+
+		/**
+		 * Helper who print the tree with color
+		 */
+		void print_tree()
+		{ print_tree(_header.parent); }
 
 	public:
 		typedef _Tp									 value_type;
@@ -207,19 +213,20 @@ namespace ft
 
 		typedef RB_Tree_iterator<value_type>		 iterator;
 		typedef RB_Tree_iterator<const value_type>	 const_iterator;
-		typedef ft::reverse_iterator<iterator>			 reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator>	 const_reverse_iterator;
+		typedef ft::reverse_iterator<iterator>		 reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 		typedef _Compare							 value_compare;
 		typedef _Alloc								 allocator_type;
 		typedef typename allocator_type::template
 					rebind<_Node>::other			 node_allocator;
 		typedef _Node*								 node_pointer;
+		typedef const _Node*						 const_node_pointer;
+		typedef _Node&								 node_reference;
 
 		RB_Tree(const value_compare &comp = value_compare(),
 				const allocator_type &a = allocator_type())
-		: _val_alloc(a),
-		  _node_alloc(node_allocator()),
+		: _node_alloc(node_allocator(a)),
 		  _compare(comp)
 		{
 			_header.parent = 0;
@@ -229,8 +236,38 @@ namespace ft
 			_size = 0;
 		}
 
+		RB_Tree(const RB_Tree& x)
+		{
+			if (x._root() != 0)
+				_root() = _copy(x);
+		}
+
 		~RB_Tree()
-		{ _destroy(_header.parent); }
+		{ _erase(_header.parent); }
+
+		RB_Tree operator=(const RB_Tree& rhs)
+		{
+			if (this != &rhs)
+			{
+				_reset();
+				_compare = rhs._compare;
+				if (rhs._root() != 0)
+					_root() = _copy(rhs);
+			}
+			return *this;
+		}
+
+		inline bool empty() const
+		{ return _size == 0; }
+
+		size_type size() const
+		{ return _size; }
+
+		size_type max_size() const
+		{ return _node_alloc.max_size(); }
+
+		allocator_type get_allocator() const
+		{ return allocator_type(_node_alloc); }
 
 		/**
 		 * @brief Get the minimum node from a node
@@ -238,8 +275,12 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return node_pointer the minimum node
 		 */
-		node_pointer min(node_pointer node = 0) const
-		{ return _min(node == 0 ? _header.parent : node); }
+		inline node_pointer min(node_pointer node) const
+		{
+			while (node->left != 0)
+				node = node->left;
+			return node;
+		}
 
 		/**
 		 * @brief Get the maximum node from a node
@@ -247,8 +288,12 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return node_pointer the maximum node
 		 */
-		node_pointer max(node_pointer node = 0) const
-		{ return _max(node == 0 ? _header.parent : node); }
+		inline node_pointer max(node_pointer node) const
+		{
+			while (node->right != 0)
+				node = node->right;
+			return node;
+		}
 
 		/**
 		 * @brief Get node from a value
@@ -263,9 +308,9 @@ namespace ft
 				node = _header.parent;
 			while (node != 0)
 			{
-				if (_compare(value, *node->data))
+				if (_compare(value, node->data))
 					node = node->left;
-				else if (_compare(*node->data, value))
+				else if (_compare(node->data, value))
 					node = node->right;
 				else
 					break;
@@ -281,9 +326,9 @@ namespace ft
 				node = _header.parent;
 			while (node != 0)
 			{
-				if (_compare(value, *node->data))
+				if (_compare(value, node->data))
 					node = node->left;
-				else if (_compare(*node->data, value))
+				else if (_compare(node->data, value))
 					node = node->right;
 				else
 					break;
@@ -334,7 +379,7 @@ namespace ft
 		pair<iterator, bool>	insert(const value_type& value)
 		{
 			pair<node_pointer, node_pointer> pos = 
-				_insert_unique_pos(value);
+				_get_insert_pos(value);
 
 			if (pos.second)
 			{
@@ -344,17 +389,71 @@ namespace ft
 			return pair<iterator, bool>(iterator(pos.first), false);
 		}
 
-		_Node			_header;
+		iterator end()
+		{ return iterator(_header); }
+
+		const_iterator end() const
+		{ return const_iterator(_header); }
+
+		template<typename InputIterator>
+		void insert_range(InputIterator first, InputIterator last)
+		{
+			for (; first != last; ++first)
+				_insert(end(), *first);
+		}
+
 	protected:
-		allocator_type	_val_alloc;
 		node_allocator	_node_alloc;
 		value_compare	_compare;
 		size_type		_size;
+		_Node			_header;
 
+		const_node_pointer _root() const
+		{ return _header.parent; }
+
+		/**
+		 * @brief Get the root of the tree
+		 * 
+		 * @return node_pointer& the root
+		 */
+		node_pointer& _root()
+		{ return _header.parent; }
+
+		/**
+		 * @brief Reset the tree
+		 */
+		void _reset()
+		{
+			_header.data = 0;
+			_header.color = RED;
+			_header.parent = 0;
+			_header.left = &_header;
+			_header.right = &_header;
+			_size = 0;
+		}
+
+		iterator _insert(iterator pos, const value_type& data)
+		{
+			pair<node_pointer, node_pointer> pos = 
+				_get_insert_pos(pos, data);
+
+			if (pos.second)
+				return _insert(pos.first, pos.second, _new_node(data));
+			return iterator(pos.first);
+		}
+
+		/**
+		 * @brief Insert a new node on the tree
+		 * 
+		 * @param pos The position where to place the new node
+		 * @param parent The parent of the new node
+		 * @param new_node The new node
+		 * @return iterator on the new node
+		 */
 		iterator _insert(node_pointer pos, node_pointer parent, node_pointer new_node)
 		{
 			bool insert_left = (pos != 0 || parent == &_header
-								|| _compare(*new_node->data, *parent->data));
+								|| _compare(new_node->data, parent->data));
 
 			new_node->parent = parent;
 			new_node->left = 0;
@@ -390,9 +489,9 @@ namespace ft
 		 */
 		void	_rebalance_insertion(node_pointer new_node)
 		{
-			node_pointer& _root = _header.parent;
+			node_pointer& root = _header.parent;
 
-			while (new_node != _root && new_node->parent->color == RED)
+			while (new_node != root && new_node->parent->color == RED)
 			{
 				node_pointer const gp = new_node->parent->parent;
 
@@ -441,7 +540,160 @@ namespace ft
 					}
 				}
 			}
-			_root->color = BLACK;
+			root->color = BLACK;
+		}
+
+		node_pointer _rebalance_for_erase(node_pointer const pos,
+										  node_reference header)
+		{
+			node_pointer &root = header.parent;
+			node_pointer &leftmost = header.left;
+			node_pointer &rightmost = header.right;
+			node_pointer tmp = pos;
+			node_pointer x = 0;
+			node_pointer x_parent = 0;
+
+			if (tmp->left == 0)
+				x = tmp->right;
+			else if (tmp->right == 0)
+				x = tmp->left;
+			else
+			{
+				tmp = tmp->right;
+				while (tmp->left != 0)
+					tmp = tmp->left;
+				x = tmp->right;
+			}
+			if (tmp != pos)
+			{
+				pos->left->parent = tmp;
+				tmp->left = pos->left;
+				if (tmp != pos->right)
+				{
+					x_parent = tmp->parent;
+					if (x)
+						x->parent = tmp->parent;
+					tmp->parent->left = x;
+					tmp->right = pos->right;
+					pos->right->parent = tmp;
+				}
+				else
+					x_parent = tmp;
+				if (root == pos)
+					root = tmp;
+				else if (pos->parent->left == pos)
+					pos->parent->left = tmp;
+				else
+					pos->parent->right = tmp;
+				tmp->parent = pos->parent;
+				ft::swap(tmp->color, pos->color);
+				tmp = pos;
+			}
+			else
+			{
+				x_parent = tmp->parent;
+				if (x)
+					x->parent = tmp->parent;
+				if (root == pos)
+					root = x;
+				else if (pos->parent->left == pos)
+					pos->parent->left = x;
+				else
+					pos->parent->right = x;
+				if (leftmost == pos)
+				{
+					if (pos->right == 0)
+						leftmost = pos->parent;
+					else
+						leftmost = min(x);
+				}
+				if (rightmost == pos)
+				{
+					if (pos->left == 0)
+						rightmost = pos->parent;
+					else
+						rightmost = max(x);
+				}
+			}
+			if (tmp->color != RED)
+			{
+				while (x != root && (x == 0 || x->color == BLACK))
+					if (x == x_parent->left)
+					{
+						node_pointer y = x_parent->right;
+						if (y->color == RED)
+						{
+							y->color = BLACK;
+							x_parent->color = RED;
+							_rotate_left(x_parent, root);
+							y = x_parent->right;
+						}
+						if ((y->left == 0 ||
+							y->left->color == BLACK) &&
+							(y->right == 0 ||
+							y->right->color == BLACK))
+						{
+							y->color = RED;
+							x = x_parent;
+							x_parent = x_parent->parent;
+						}
+						else
+						{
+							if (y->right == 0 || y->right->color == BLACK)
+							{
+								y->left->color = BLACK;
+								y->color = RED;
+								_rotate_right(y, root);
+								y = x_parent->right;
+							}
+							y->color = x_parent->color;
+							x_parent->color = BLACK;
+							if (y->right)
+								y->right->color = BLACK;
+							_rotate_left(x_parent, root);
+							break;
+						}
+					}
+					else
+					{
+						node_pointer y = x_parent->left;
+						if (y->color == RED)
+						{
+							y->color = BLACK;
+							x_parent->color = RED;
+							_rotate_right(x_parent, root);
+							y = x_parent->left;
+						}
+						if ((y->right == 0 ||
+							y->right->color == BLACK) &&
+							(y->left == 0 ||
+							y->left->color == BLACK))
+						{
+							y->color = RED;
+							x = x_parent;
+							x_parent = x_parent->parent;
+						}
+						else
+						{
+							if (y->left == 0 || y->left->color == BLACK)
+							{
+								y->right->color = BLACK;
+								y->color = RED;
+								_rotate_left(y, root);
+								y = x_parent->left;
+							}
+							y->color = x_parent->color;
+							x_parent->color = BLACK;
+							if (y->left)
+								y->left->color = BLACK;
+							_rotate_right(x_parent, root);
+							break;
+						}
+					}
+				if (x)
+					x->color = BLACK;
+			}
+			return tmp;
 		}
 
 		void	_rotate_left(node_pointer const x)
@@ -482,9 +734,19 @@ namespace ft
 			x->parent = tmp;
 		}
 
+		/**
+		 * @brief Get the maximum of the tree
+		 * 
+		 * @return node_pointer the maximum of the tree
+		 */
 		inline node_pointer	_right_most()
 		{ return this->_header.right; }
 
+		/**
+		 * @brief Get the minimum of the tree
+		 * 
+		 * @return node_pointer the minimum of the tree
+		 */
 		inline node_pointer	_left_most()
 		{ return this->_header.left; }
 
@@ -494,8 +756,8 @@ namespace ft
 		 * @param new_val The value of the node to insert
 		 * @return node_pointer the position to insert
 		 */
-		ft::pair<node_pointer, node_pointer>
-		_insert_unique_pos(const value_type& new_val)
+		pair<node_pointer, node_pointer>
+		_get_insert_pos(const value_type& new_val)
 		{
 			typedef ft::pair<node_pointer, node_pointer> res;
 			node_pointer new_pos = _header.parent;
@@ -505,7 +767,7 @@ namespace ft
 			while (new_pos != 0)
 			{
 				parent = new_pos;
-				comp = _compare(new_val, *new_pos->data);
+				comp = _compare(new_val, new_pos->data);
 				new_pos = comp ? new_pos->left : new_pos->right;
 			}
 			iterator it = iterator(parent);
@@ -521,74 +783,159 @@ namespace ft
 			return res(it._node, 0);
 		}
 
-		/**
-		 * @brief Get the minimum node from a node
-		 * 
-		 * @param node The node where to start the search
-		 * @return node_pointer the minimum node
-		 */
-		inline node_pointer _min(node_pointer node) const
+		pair<node_pointer, node_pointer>
+		_get_insert_pos(iterator position, const value_type& new_val)
 		{
-			while (node->left != 0)
-				node = node->left;
-			return node;
+			iterator pos = position;
+			typedef pair<node_pointer, node_pointer> res;
+
+			if (pos._node == &_header)
+			{
+				if (size() > 0 && _compare(_right_most()->data, new_val))
+					return res(0, _right_most());
+				else
+					return _get_insert_pos(new_val);
+			}
+			else if (_compare(new_val, pos._node->data))
+			{
+				iterator before = pos;
+				if (pos._node == _left_most())
+					return res(_left_most(), _left_most());
+				else if (_compare((--before)._node->data, new_val))
+				{
+					if (before._node->right == 0)
+						return res(0, before._node);
+					else
+						return res(pos._node, pos._node);
+				}
+				else
+					return _get_insert_pos(new_val);
+			}
+			else if (_compare(pos._node->data, new_val))
+			{
+				iterator after = pos;
+				if (pos._node == _right_most())
+					return res(0, _right_most());
+				else if (_compare(new_val, (++after)._node->data))
+				{
+					if (pos._node->right == 0)
+						return res(0, pos._node);
+					else
+						return res(after._node, after._node);
+				}
+				else
+					return _get_insert_pos(new_val);
+			}
+			else
+				return res(pos._node, 0);
 		}
 
 		/**
-		 * @brief Get the maximum node from a node
+		 * @brief Clone a node
 		 * 
-		 * @param node The node where to start the search
-		 * @return node_pointer the maximum node
+		 * @param src The node to clone
+		 * @return node_pointer the new node
 		 */
-		inline node_pointer _max(node_pointer node) const
+		node_pointer	_clone_node(node_pointer src)
 		{
-			while (node->right != 0)
-				node = node->right;
-			return node;
+			node_pointer tmp = _new_node(src->data);
+			tmp->color = src->color;
+			return tmp;
+		}
+
+		node_pointer _begin() const
+		{ return _header.parent; }
+
+		/**
+		 * @brief Copy a RB_Tree
+		 * 
+		 * @param src The tree to copy
+		 * @return node_pointer the new root
+		 */
+		node_pointer _copy(const RB_Tree& src)
+		{
+			node_pointer root = _copy(src._begin(), &_header);
+			_header.left = min(root);
+			_header.right = max(root);
+			_size = src.size();
+			return root;
 		}
 
 		/**
-		 * @brief Destroy and deallocate the node
+		 * @brief Copy all the tree from src to dst
+		 * 
+		 * @param src The tree to copy
+		 * @param dst The destination for copy
+		 * @return node_pointer the root of the new tree
+		 */
+		node_pointer _copy(node_pointer src, node_pointer dst)
+		{
+			node_pointer tmp = _clone_node(src);
+			tmp->parent = dst;
+
+			try
+			{
+				if (src->right)
+					tmp->right = _copy(src->right, tmp);
+				dst = tmp;
+				src = src->left;
+
+				while (src != 0)
+				{
+					node_pointer tmp2 = _clone_node(src);
+					dst->left = tmp2;
+					tmp2->parent = dst;
+					if (src->right)
+						tmp2->right = _copy(src->right, tmp2);
+					dst = tmp2;
+					src = src->left;
+				}
+			}
+			catch (...)
+			{
+				_erase(tmp);
+				throw ;
+			}
+			return tmp;
+		}
+
+		/**
+		 * @brief Erase a tree from this node
+		 * 
+		 * @param x The node where to start erasing
+		 */
+		void	_erase(node_pointer x)
+		{
+			while (x != 0)
+			{
+				_erase(x->right);
+				node_pointer tmp = x->left;
+				_delete_node(x);
+				x = tmp;
+			}
+		}
+
+		/**
+		 * @brief Destroy and deallocate a node
 		 * 
 		 * @param node The node to delete
 		 */
 		void _delete_node(node_pointer node)
 		{
-			if (node->data)
-			{
-				this->_val_alloc.destroy(node->data);
-				this->_val_alloc.deallocate(node->data, 1);
-			}
 			this->_node_alloc.destroy(node);
 			this->_node_alloc.deallocate(node, 1);
 		}
 
 		/**
-		 * @brief Destroy and deallocate the tree from the specify node
+		 * @brief Create a new node with data
 		 * 
-		 * @param node The start to delete
+		 * @param x The data of the new node
+		 * @return node_pointer the new node
 		 */
-		void	_destroy(node_pointer node)
-		{
-			if (node == 0)
-				return ;
-
-			_destroy(node->left);
-			_destroy(node->right);
-			_delete_node(node);
-		}
-
-		inline pointer _new_value(const value_type &x)
-		{
-			pointer new_val = this->_val_alloc.allocate(1);
-			this->_val_alloc.construct(new_val, x);
-			return new_val;
-		}
-
 		node_pointer	_new_node(const value_type &x)
 		{
 			node_pointer new_node = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(new_node, _Node(_new_value(x)));
+			this->_node_alloc.construct(new_node, x);
 			new_node->left = 0;
 			new_node->right = 0;
 			new_node->parent = 0;
