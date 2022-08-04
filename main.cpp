@@ -22,6 +22,7 @@
 	#include <iterator>
 	namespace ft = std;
 #else
+	#include <map.hpp>
 	#include <vector.hpp>
 	#include <stack.hpp>
 	#include <iterator.hpp>
@@ -51,50 +52,18 @@ int main(void)
 {
 	try
 	{
+		ft::map<int, std::string> m;
 
+		m[1] = "salut";
+		m[2] = "les";
+		m[3] = "amis";
+		m[4] = "!";
+		m[100] = "sihf";
 
-		// typedef std::pair<const int, u_int8_t> pair;
-		// typedef std::_Rb_tree<int, pair, std::_Select1st<pair>, std::less<int> > tree;
-		// tree t;
-		// srand(time(NULL));
-		// for (size_t i = 0; i < SIZE; ++i) {
-		// 	int x = rand() % 100000000;
-		// 	t._M_insert_unique(pair(i, x));
-		// }
+		typedef ft::map<int, std::string>::iterator iterator;
 
-		// tree t1;
-		// for (size_t i = 0; i < SIZE; ++i) {
-		// 	int x = rand() % 100000000;
-		// 	t1._M_insert_unique(pair(i, x));
-		// }
-
-		// t1 = t;
-
-		typedef ft::RB_Tree<int> tree;
-		ft::RB_Tree<int> t;
-		srand(time(NULL));
-		for (int i = 0; i < SIZE; ++i) {
-			// int x = rand() % 100000000;
-			// std::cout << x << " ";
-			t.insert(i);
-		}
-		// std::cout << std::endl;
-		// t.print_tree();
-		// std::cout << std::endl;
-
-		ft::RB_Tree<int> t1;
-		t1 = t;
-		// t1.print_tree();
-
-		std::cout << "t: [";
-		for (tree::iterator it = t.begin(); it != t.end(); ++it)
-			std::cout << *it << ", ";
-		std::cout << "]" << std::endl;
-
-		std::cout << "t1: [";
-		for (tree::iterator it = t1.begin(); it != t1.end(); ++it)
-			std::cout << *it << ", ";
-		std::cout << "]" << std::endl;
+		for (iterator it = m.begin(); it != m.end(); ++it)
+			std::cout << (*it).first << " " << (*it).second << std::endl;
 	}
 	catch (std::exception const & e)
 	{

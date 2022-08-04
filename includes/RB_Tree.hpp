@@ -185,7 +185,7 @@ namespace ft
 		}
 	};
 
-	template<typename _Tp, typename _Compare = std::less<_Tp>,
+	template<typename _Tp, typename _Compare,
 			 typename _Alloc = std::allocator<_Tp> >
 	class RB_Tree
 	{
@@ -258,16 +258,19 @@ namespace ft
 		}
 
 		inline bool empty() const
-		{ return _size == 0; }
+		{ return this->_size == 0; }
 
 		size_type size() const
-		{ return _size; }
+		{ return this->_size; }
 
 		size_type max_size() const
 		{ return _node_alloc.max_size(); }
 
 		allocator_type get_allocator() const
 		{ return allocator_type(_node_alloc); }
+
+		_Compare key_comp() const
+		{ return _compare; }
 
 		/**
 		 * @brief Get the minimum node from a node
@@ -302,55 +305,54 @@ namespace ft
 		 * @param node The node where to start the search
 		 * @return iterator the iterator of the node
 		 */
-		iterator find(const value_type& value, node_pointer node = 0)
-		{
-			if (node == 0)
-				node = _header.parent;
-			while (node != 0)
-			{
-				if (_compare(value, node->data))
-					node = node->left;
-				else if (_compare(node->data, value))
-					node = node->right;
-				else
-					break;
-			}
-			if (node == 0)
-				return iterator();
-			return iterator(node);
-		}
+		// iterator find(const value_type& value)
+		// {
+		// 	node_pointer tmp = _header.parent;
 
-		node_pointer get_node(const value_type& value, node_pointer node = 0)
-		{
-			if (node == 0)
-				node = _header.parent;
-			while (node != 0)
-			{
-				if (_compare(value, node->data))
-					node = node->left;
-				else if (_compare(node->data, value))
-					node = node->right;
-				else
-					break;
-			}
-			if (node == 0)
-				return 0;
-			return node;
-		}
+		// 	while (tmp != 0)
+		// 	{
+		// 		if (_compare(value, tmp->data))
+		// 			tmp = tmp->left;
+		// 		else if (_compare(tmp->data, value))
+		// 			tmp = tmp->right;
+		// 		else
+		// 			return iterator(tmp);
+		// 	}
+		// 	if (tmp == 0)
+		// 		return iterator();
+		// 	return iterator(tmp);
+		// }
 
-		size_type count(node_pointer node = 0) const
-		{
-			if (node == 0)
-				node = _header.parent;
-			if (node == 0)
-				return 0;
+		// node_pointer get_node(const value_type& value)
+		// {
+		// 	node_pointer node = _header.parent;
 
-			size_type nb_node = 1;
-			nb_node += count(node->left);
-			nb_node += count(node->right);
+		// 	while (node != 0)
+		// 	{
+		// 		if (_compare(value, node->data))
+		// 			node = node->left;
+		// 		else if (_compare(node->data, value))
+		// 			node = node->right;
+		// 		else
+		// 			break;
+		// 	}
+		// 	if (node == 0)
+		// 		return 0;
+		// 	return node;
+		// }
 
-			return nb_node;
-		}
+		// size_type count() const
+		// {
+		// 	node_pointer node = _header.parent;
+		// 	if (node == 0)
+		// 		return 0;
+
+		// 	size_type nb_node = 1;
+		// 	nb_node += count(node->left);
+		// 	nb_node += count(node->right);
+
+		// 	return nb_node;
+		// }
 
 		inline iterator begin()
 		{ return iterator(_header.left); }
@@ -359,10 +361,10 @@ namespace ft
 		{ return const_iterator(_header.left); }
 
 		inline iterator end()
-		{ return iterator(_header.right); }
+		{ return iterator(&_header); }
 
 		inline const_iterator end() const
-		{ return const_iterator(_header.right); }
+		{ return const_iterator(&_header); }
 
 		inline reverse_iterator rbegin()
 		{ return reverse_iterator(_header.right); }
@@ -375,6 +377,18 @@ namespace ft
 
 		inline const_reverse_iterator rend() const
 		{ return const_reverse_iterator(_header.left); }
+
+		iterator lower_bound(const value_type& value)
+		{ return _lower_bound(begin(), end(), value); }
+
+		const_iterator lower_bound(const value_type& value) const
+		{ return _lower_bound(begin(), end(), value); }
+
+		iterator upper_bound(const value_type& value)
+		{ return _upper_bound(begin(), end(), value); }
+
+		const_iterator upper_bound(const value_type& value) const
+		{ return _upper_bound(begin(), end(), value); }
 
 		pair<iterator, bool>	insert(const value_type& value)
 		{
@@ -389,17 +403,28 @@ namespace ft
 			return pair<iterator, bool>(iterator(pos.first), false);
 		}
 
-		iterator end()
-		{ return iterator(_header); }
+		/**
+		 * @brief Insert 
+		 * 
+		 * @param pos 
+		 * @param data 
+		 * @return iterator 
+		 */
+		iterator insert(iterator pos, const value_type& data)
+		{
+			pair<node_pointer, node_pointer> new_pos =
+				_get_insert_pos(pos, data);
 
-		const_iterator end() const
-		{ return const_iterator(_header); }
+			if (new_pos.second)
+				return _insert(new_pos.first, new_pos.second, _new_node(data));
+			return iterator(new_pos.first);
+		}
 
 		template<typename InputIterator>
 		void insert_range(InputIterator first, InputIterator last)
 		{
 			for (; first != last; ++first)
-				_insert(end(), *first);
+				insert(end(), *first);
 		}
 
 	protected:
@@ -429,17 +454,59 @@ namespace ft
 			_header.parent = 0;
 			_header.left = &_header;
 			_header.right = &_header;
-			_size = 0;
+			this->_size = 0;
 		}
 
-		iterator _insert(iterator pos, const value_type& data)
+		iterator _lower_bound(node_pointer x, node_pointer y,
+							  const value_type& value)
 		{
-			pair<node_pointer, node_pointer> pos = 
-				_get_insert_pos(pos, data);
+			while (x != 0)
+			{
+				if (!_compare(x->data, value))
+					y = x, x = x->left;
+				else
+					x = x->right;
+			}
+			return iterator(y);
+		}
 
-			if (pos.second)
-				return _insert(pos.first, pos.second, _new_node(data));
-			return iterator(pos.first);
+		const_iterator _lower_bound(node_pointer x, node_pointer y,
+							  const value_type& value) const
+		{
+			while (x != 0)
+			{
+				if (!_compare(x->data, value))
+					y = x, x = x->left;
+				else
+					x = x->right;
+			}
+			return const_iterator(y);
+		}
+
+		iterator _upper_bound(node_pointer x, node_pointer y,
+							  const value_type& value)
+		{
+			while (x != 0)
+			{
+				if (_compare(value, x->data))
+					y = x, x = x->left;
+				else
+					x = x->right;
+			}
+			return iterator(y);
+		}
+
+		const_iterator _upper_bound(node_pointer x, node_pointer y,
+							  const value_type& value) const
+		{
+			while (x != 0)
+			{
+				if (_compare(value, x->data))
+					y = x, x = x->left;
+				else
+					x = x->right;
+			}
+			return const_iterator(y);
 		}
 
 		/**
@@ -543,12 +610,25 @@ namespace ft
 			root->color = BLACK;
 		}
 
-		node_pointer _rebalance_for_erase(node_pointer const pos,
-										  node_reference header)
+		void _erase(const_iterator pos)
 		{
-			node_pointer &root = header.parent;
-			node_pointer &leftmost = header.left;
-			node_pointer &rightmost = header.right;
+			node_pointer to_delete = _rebalance_for_erase(pos._node);
+
+			_delete_node(to_delete);
+			--this->_size;
+		}
+
+		/**
+		 * @brief Rebalance tree for erase one node
+		 * 
+		 * @param pos The position of the node to erase
+		 * @return The node to delete
+		 */
+		node_pointer _rebalance_for_erase(node_pointer const pos)
+		{
+			node_pointer &root = _header.parent;
+			node_pointer &leftmost = _header.left;
+			node_pointer &rightmost = _header.right;
 			node_pointer tmp = pos;
 			node_pointer x = 0;
 			node_pointer x_parent = 0;
@@ -857,7 +937,7 @@ namespace ft
 			node_pointer root = _copy(src._begin(), &_header);
 			_header.left = min(root);
 			_header.right = max(root);
-			_size = src.size();
+			this->_size = src.size();
 			return root;
 		}
 

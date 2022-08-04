@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <traits.hpp>
 
 namespace ft
 {
