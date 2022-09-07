@@ -31,7 +31,7 @@ namespace ft
 	public:
 		typedef Node* _Base;
 
-		_Tp			data;
+		_Tp*		data;
 		node_color	color;
 		_Base		parent;
 		_Base		left;
@@ -41,7 +41,7 @@ namespace ft
 		: color(RED)
 		{ }
 
-		Node(_Tp x)
+		Node(_Tp* x)
 		: data(x),
 		  color(RED)
 		{ }
@@ -75,7 +75,6 @@ namespace ft
 	template<typename _Tp>
 	struct RB_Tree_iterator
 	{
-	public:
 		typedef _Tp								value_type;
 		typedef _Tp&							reference;
 		typedef _Tp*							pointer;
@@ -86,7 +85,7 @@ namespace ft
 		_Base _node;
 
 		RB_Tree_iterator()
-		: _node(_Tp())
+		: _node()
 		{ }
 
 		explicit RB_Tree_iterator(_Base x)	
@@ -94,10 +93,10 @@ namespace ft
 		{ }
 
 		reference operator*() const
-		{ return _node->data; }
+		{ return *(_node->data); }
 
 		pointer operator->() const
-		{ return &_node->data; }
+		{ return _node->data; }
 
 		RB_Tree_iterator& operator++()
 		{
@@ -132,10 +131,6 @@ namespace ft
 		friend bool operator!=(const RB_Tree_iterator<_Tp>& lhs,
 							   const RB_Tree_iterator<_Tp>& rhs)
 		{ return lhs._node != rhs._node; }
-
-		inline _Base	base()
-		{ return _node; }
-
 
 	private:
 		_Base _increment(_Base node)
@@ -185,6 +180,127 @@ namespace ft
 		}
 	};
 
+	template<typename _Tp>
+	struct RB_Tree_const_iterator
+	{
+		typedef _Tp								value_type;
+		typedef const _Tp&						reference;
+		typedef const _Tp*						pointer;
+		typedef RB_Tree_iterator<_Tp>			iterator;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef ptrdiff_t						difference_type;
+		typedef const Node<_Tp>*				_Base;
+
+		_Base _node;
+
+		RB_Tree_const_iterator()
+		: _node()
+		{ }
+
+		explicit RB_Tree_const_iterator(_Base x)	
+		: _node(x)
+		{ }
+
+		RB_Tree_const_iterator(const iterator& it)
+		: _node(it._node)
+		{ }
+
+		reference operator*() const
+		{ return *(_node->data); }
+
+		pointer operator->() const
+		{ return _node->data; }
+
+		RB_Tree_const_iterator& operator++()
+		{
+			_node = _increment(_node);
+			return (*this);
+		}
+
+		RB_Tree_const_iterator operator++(int)
+		{
+			RB_Tree_const_iterator<value_type> tmp = *this;
+			_node = _increment(_node);
+			return tmp;
+		}
+
+		RB_Tree_const_iterator& operator--()
+		{
+			_node = _decrement(_node);
+			return (*this);
+		}
+
+		RB_Tree_const_iterator operator--(int)
+		{
+			RB_Tree_const_iterator<value_type> tmp = *this;
+			_node = _decrement(_node);
+			return tmp;
+		}
+
+		friend bool operator==(const RB_Tree_const_iterator<_Tp>& lhs,
+							   const RB_Tree_const_iterator<_Tp>& rhs)
+		{ return lhs._node == rhs._node; }
+
+		friend bool operator!=(const RB_Tree_const_iterator<_Tp>& lhs,
+							   const RB_Tree_const_iterator<_Tp>& rhs)
+		{ return lhs._node != rhs._node; }
+
+	private:
+		_Base _increment(_Base node)
+		{
+			if (node->right != 0)
+			{
+				node = node->right;
+				while (node->left != 0)
+					node = node->left;
+			}
+			else
+			{
+				_Base tmp = node->parent;
+				while (node == tmp->right)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				if (node->right != tmp)
+					node = tmp;
+			}
+			return node;
+		}
+
+		_Base _decrement(_Base node)
+		{
+			if (node->color == RED && node->parent->parent == node)
+				node = node->right;
+			else if (node->left != 0)
+			{
+				_Base tmp = node->left;
+				while (tmp->right != 0)
+					tmp = tmp->right;
+				node = tmp;
+			}
+			else
+			{
+				_Base tmp = node->parent;
+				while (node == tmp->left)
+				{
+					node = tmp;
+					tmp = tmp->parent;
+				}
+				node = tmp;
+			}
+			return node;
+		}
+	};
+
+
+	/**
+	 * @brief The tree class
+	 * 
+	 * @tparam _Tp The type of the node
+	 * @tparam _Compare The class to use for comparaison
+	 * @tparam _Alloc The allocator class to use
+	 */
 	template<typename _Tp, typename _Compare,
 			 typename _Alloc = std::allocator<_Tp> >
 	class RB_Tree
@@ -212,7 +328,7 @@ namespace ft
 		typedef ptrdiff_t							 difference_type;
 
 		typedef RB_Tree_iterator<value_type>		 iterator;
-		typedef RB_Tree_iterator<const value_type>	 const_iterator;
+		typedef RB_Tree_const_iterator<value_type>	 const_iterator;
 		typedef ft::reverse_iterator<iterator>		 reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -264,7 +380,7 @@ namespace ft
 		{ return this->_size; }
 
 		size_type max_size() const
-		{ return _node_alloc.max_size(); }
+		{ return get_allocator().max_size(); }
 
 		allocator_type get_allocator() const
 		{ return allocator_type(_node_alloc); }
@@ -298,62 +414,6 @@ namespace ft
 			return node;
 		}
 
-		/**
-		 * @brief Get node from a value
-		 * 
-		 * @param value The value to search
-		 * @param node The node where to start the search
-		 * @return iterator the iterator of the node
-		 */
-		// iterator find(const value_type& value)
-		// {
-		// 	node_pointer tmp = _header.parent;
-
-		// 	while (tmp != 0)
-		// 	{
-		// 		if (_compare(value, tmp->data))
-		// 			tmp = tmp->left;
-		// 		else if (_compare(tmp->data, value))
-		// 			tmp = tmp->right;
-		// 		else
-		// 			return iterator(tmp);
-		// 	}
-		// 	if (tmp == 0)
-		// 		return iterator();
-		// 	return iterator(tmp);
-		// }
-
-		// node_pointer get_node(const value_type& value)
-		// {
-		// 	node_pointer node = _header.parent;
-
-		// 	while (node != 0)
-		// 	{
-		// 		if (_compare(value, node->data))
-		// 			node = node->left;
-		// 		else if (_compare(node->data, value))
-		// 			node = node->right;
-		// 		else
-		// 			break;
-		// 	}
-		// 	if (node == 0)
-		// 		return 0;
-		// 	return node;
-		// }
-
-		// size_type count() const
-		// {
-		// 	node_pointer node = _header.parent;
-		// 	if (node == 0)
-		// 		return 0;
-
-		// 	size_type nb_node = 1;
-		// 	nb_node += count(node->left);
-		// 	nb_node += count(node->right);
-
-		// 	return nb_node;
-		// }
-
 		inline iterator begin()
 		{ return iterator(_header.left); }
 
@@ -379,16 +439,16 @@ namespace ft
 		{ return const_reverse_iterator(_header.left); }
 
 		iterator lower_bound(const value_type& value)
-		{ return _lower_bound(begin(), end(), value); }
+		{ return _lower_bound(this->_header.parent, &this->_header, value); }
 
 		const_iterator lower_bound(const value_type& value) const
-		{ return _lower_bound(begin(), end(), value); }
+		{ return _lower_bound(this->_header.parent, &this->_header, value); }
 
 		iterator upper_bound(const value_type& value)
-		{ return _upper_bound(begin(), end(), value); }
+		{ return _upper_bound(this->_header.parent, &this->_header, value); }
 
 		const_iterator upper_bound(const value_type& value) const
-		{ return _upper_bound(begin(), end(), value); }
+		{ return _upper_bound(this->_header.parent, &this->_header, value); }
 
 		pair<iterator, bool>	insert(const value_type& value)
 		{
@@ -396,11 +456,10 @@ namespace ft
 				_get_insert_pos(value);
 
 			if (pos.second)
-			{
-				_insert(pos.first, pos.second, _new_node(value));
-				return pair<iterator, bool>(iterator(pos.first), true);
-			}
-			return pair<iterator, bool>(iterator(pos.first), false);
+				return pair<iterator, bool>(_insert(pos.first, pos.second, _new_node(value))
+											, true);
+			return pair<iterator, bool>(iterator(pos.first)
+										, false);
 		}
 
 		/**
@@ -462,7 +521,7 @@ namespace ft
 		{
 			while (x != 0)
 			{
-				if (!_compare(x->data, value))
+				if (!_compare(*(x->data), value))
 					y = x, x = x->left;
 				else
 					x = x->right;
@@ -475,7 +534,7 @@ namespace ft
 		{
 			while (x != 0)
 			{
-				if (!_compare(x->data, value))
+				if (!_compare(*(x->data), value))
 					y = x, x = x->left;
 				else
 					x = x->right;
@@ -488,7 +547,7 @@ namespace ft
 		{
 			while (x != 0)
 			{
-				if (_compare(value, x->data))
+				if (_compare(value, *(x->data)))
 					y = x, x = x->left;
 				else
 					x = x->right;
@@ -501,7 +560,7 @@ namespace ft
 		{
 			while (x != 0)
 			{
-				if (_compare(value, x->data))
+				if (_compare(value, *(x->data)))
 					y = x, x = x->left;
 				else
 					x = x->right;
@@ -520,7 +579,7 @@ namespace ft
 		iterator _insert(node_pointer pos, node_pointer parent, node_pointer new_node)
 		{
 			bool insert_left = (pos != 0 || parent == &_header
-								|| _compare(new_node->data, parent->data));
+								|| _compare(*(new_node->data), *(parent->data)));
 
 			new_node->parent = parent;
 			new_node->left = 0;
@@ -830,6 +889,9 @@ namespace ft
 		inline node_pointer	_left_most()
 		{ return this->_header.left; }
 
+		inline node_pointer _header_parent()
+		{ return this->_header.parent; }
+
 		/**
 		 * @brief Find the position to insert a node
 		 * 
@@ -847,7 +909,7 @@ namespace ft
 			while (new_pos != 0)
 			{
 				parent = new_pos;
-				comp = _compare(new_val, new_pos->data);
+				comp = _compare(new_val, *(new_pos->data));
 				new_pos = comp ? new_pos->left : new_pos->right;
 			}
 			iterator it = iterator(parent);
@@ -871,17 +933,17 @@ namespace ft
 
 			if (pos._node == &_header)
 			{
-				if (size() > 0 && _compare(_right_most()->data, new_val))
+				if (size() > 0 && _compare(*(_right_most()->data), new_val))
 					return res(0, _right_most());
 				else
 					return _get_insert_pos(new_val);
 			}
-			else if (_compare(new_val, pos._node->data))
+			else if (_compare(new_val, *(pos._node->data)))
 			{
 				iterator before = pos;
 				if (pos._node == _left_most())
 					return res(_left_most(), _left_most());
-				else if (_compare((--before)._node->data, new_val))
+				else if (_compare(*((--before)._node->data), new_val))
 				{
 					if (before._node->right == 0)
 						return res(0, before._node);
@@ -891,12 +953,12 @@ namespace ft
 				else
 					return _get_insert_pos(new_val);
 			}
-			else if (_compare(pos._node->data, new_val))
+			else if (_compare(*(pos._node->data), new_val))
 			{
 				iterator after = pos;
 				if (pos._node == _right_most())
 					return res(0, _right_most());
-				else if (_compare(new_val, (++after)._node->data))
+				else if (_compare(new_val, *((++after)._node->data)))
 				{
 					if (pos._node->right == 0)
 						return res(0, pos._node);
@@ -918,7 +980,7 @@ namespace ft
 		 */
 		node_pointer	_clone_node(node_pointer src)
 		{
-			node_pointer tmp = _new_node(src->data);
+			node_pointer tmp = _new_node(*(src->data));
 			tmp->color = src->color;
 			return tmp;
 		}
@@ -1002,8 +1064,17 @@ namespace ft
 		 */
 		void _delete_node(node_pointer node)
 		{
+			this->get_allocator().destroy(node->data);
+			this->get_allocator().deallocate(node->data, 1);
 			this->_node_alloc.destroy(node);
 			this->_node_alloc.deallocate(node, 1);
+		}
+
+		value_type*	_new_data(const value_type &x)
+		{
+			value_type* new_data = this->get_allocator().allocate(1);
+			this->get_allocator().construct(new_data, x);
+			return new_data;
 		}
 
 		/**
@@ -1015,7 +1086,7 @@ namespace ft
 		node_pointer	_new_node(const value_type &x)
 		{
 			node_pointer new_node = this->_node_alloc.allocate(1);
-			this->_node_alloc.construct(new_node, x);
+			this->_node_alloc.construct(new_node, _new_data(x));
 			new_node->left = 0;
 			new_node->right = 0;
 			new_node->parent = 0;

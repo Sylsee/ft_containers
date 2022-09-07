@@ -94,7 +94,10 @@ namespace ft
 		{ return allocator_type(_tree.get_allocator()); }
 
 		key_compare key_comp() const
-		{ return _tree.key_comp(); }
+		{ return key_compare(); }
+
+		value_compare value_comp() const
+		{ return value_compare(_tree.key_comp()); }
 
 		inline iterator begin()
 		{ return _tree.begin(); }
@@ -127,7 +130,7 @@ namespace ft
 		{ return _tree.size(); }
 
 		inline size_type max_size() const
-		{ return _tree._val_alloc.max_size(); }
+		{ return _tree.max_size(); }
 
 		mapped_type& operator[](const key_type& k)
 		{
@@ -138,34 +141,19 @@ namespace ft
 		}
 
 		iterator lower_bound(const key_type& k)
-		{ return _tree.lower_bound(value_type(k, 0)); }
+		{ return _tree.lower_bound(value_type(k, mapped_type())); }
 
 		const_iterator lower_bound(const key_type& k) const
-		{ return _tree.lower_bound(value_type(k, 0)); }
+		{ return _tree.lower_bound(value_type(k, mapped_type())); }
 
 		iterator upper_bound(const key_type& k)
-		{ return _tree.upper_bound(value_type(k, 0)); }
+		{ return _tree.upper_bound(value_type(k, mapped_type())); }
 
 		const_iterator upper_bound(const key_type& k) const
-		{ return _tree.upper_bound(value_type(k, 0)); }
+		{ return _tree.upper_bound(value_type(k, mapped_type())); }
 
 		inline void swap(map& x)
 		{ ft::swap(this->_tree, x._tree); }
-
-		// inline void clear()
-		// { _tree.destroy(); }
-
-		// inline value_compare value_comp() const
-		// { return value_compare(_tree.key_comp()); }
-
-		// inline iterator find(const key_type& k)
-		// { return _tree.find(k); }
-
-		// inline const_iterator find(const key_type& k) const
-		// { return _tree.find(k); }
-
-		// inline size_type count(const key_type& k) const
-		// { return _tree.count(_tree.get_node(k)); }
 
 		ft::pair<iterator, bool> insert(const value_type& x)
 		{ return _tree.insert(x); }

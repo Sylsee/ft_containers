@@ -572,7 +572,7 @@ namespace ft
 			}
 			else
 			{
-				for (size_type i = end() - begin() + n; i > position - begin() + n; i--)
+				for (size_type i = end() - begin() + n; i >= position - begin() + n; i--)
 				{
 					this->_alloc.construct(&this->_data[i], this->_data[i - n]);
 					this->_alloc.destroy(&this->_data[i - n]);

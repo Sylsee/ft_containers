@@ -47,20 +47,20 @@ std::ostream&	operator<<(std::ostream& o, const Test& t)
 }
 
 #define SIZE 5
+typedef ft::map<int, std::string>::value_type val_type;
+typedef ft::map<int, std::string>::iterator iterator;
 
 int main(void)
 {
 	try
 	{
 		ft::map<int, std::string> m;
+		ft::pair<iterator, bool> tmp;
 
-		m[1] = "salut";
-		m[2] = "les";
-		m[3] = "amis";
-		m[4] = "!";
-		m[100] = "sihf";
+		tmp = m.insert(val_type(1, "sans mil"));
 
-		typedef ft::map<int, std::string>::iterator iterator;
+		std::cout << tmp.first->first << std::endl;
+		std::cout << tmp.second << std::endl;
 
 		for (iterator it = m.begin(); it != m.end(); ++it)
 			std::cout << (*it).first << " " << (*it).second << std::endl;
