@@ -450,6 +450,62 @@ namespace ft
 		const_iterator upper_bound(const value_type& value) const
 		{ return _upper_bound(this->_header.parent, &this->_header, value); }
 
+		pair<iterator, iterator> equal_range(value_type node)
+		{
+			typedef pair<iterator, iterator> res;
+			node_pointer x = begin();
+			node_pointer y = end();
+
+			while (x != 0)
+			{
+				if (_compare(x->data, node))
+					x = x->right;
+				else if (_compare(node, x->data))
+				{
+					y = x;
+					x = x->left;
+				}
+				else
+				{
+					node_pointer tmp_x(x);
+					node_pointer tmp_y(y);
+					y = x;
+					x = x->left;
+					tmp_x = tmp_x->right;
+					return res(_lower_bound(x, y, node), _upper_bound(tmp_x, tmp_y, node));
+				}
+			}
+			return res(iterator(y), iterator(y));
+		}
+
+		pair<const_iterator, const_iterator> equal_range(value_type node) const
+		{
+			typedef pair<const_iterator, const_iterator> res;
+			node_pointer x = begin();
+			node_pointer y = end();
+
+			while (x != 0)
+			{
+				if (_compare(x->data, node))
+					x = x->right;
+				else if (_compare(node, x->data))
+				{
+					y = x;
+					x = x->left;
+				}
+				else
+				{
+					node_pointer tmp_x(x);
+					node_pointer tmp_y(y);
+					y = x;
+					x = x->left;
+					tmp_x = tmp_x->right;
+					return res(_lower_bound(x, y, node), _upper_bound(tmp_x, tmp_y, node));
+				}
+			}
+			return res(const_iterator(y), const_iterator(y));
+		}
+
 		pair<iterator, bool>	insert(const value_type& value)
 		{
 			pair<node_pointer, node_pointer> pos = 
@@ -462,13 +518,6 @@ namespace ft
 										, false);
 		}
 
-		/**
-		 * @brief Insert 
-		 * 
-		 * @param pos 
-		 * @param data 
-		 * @return iterator 
-		 */
 		iterator insert(iterator pos, const value_type& data)
 		{
 			pair<node_pointer, node_pointer> new_pos =
@@ -486,11 +535,63 @@ namespace ft
 				insert(end(), *first);
 		}
 
+		void erase(iterator pos)
+		{ _erase(pos); }
+
+		size_type erase(value_type node)
+		{
+			pair<iterator, iterator> pos = equal_range(node);
+			const size_type old_size = size();
+			_erase(pos.first, pos.second);
+			return old_size - size();
+		}
+
+		void erase(iterator first, iterator last)
+		{ _erase(first, last); }
+
+		void clear()
+		{
+			_erase(_header.left);
+			_reset();
+		}
+
+		void swap(RB_Tree& t)
+		{
+			ft::swap(this->_node_alloc, t._node_alloc);
+			ft::swap(this->_compare, t._compare);
+			ft::swap(this->_size, t._size);
+			ft::swap(this->_header, t._header);
+		}
+
+		iterator find(value_type& value)
+		{
+			iterator it = _lower_bound(begin(), end(), value);
+			return (it == end() || _compare(value, *it)) ? end() : it;
+		}
+
+		const_iterator find(value_type& value) const
+		{
+			const_iterator it = _lower_bound(begin(), end(), value);
+			return (it == end() || _compare(value, *it)) ? end() : it;
+		}
+
 	protected:
 		node_allocator	_node_alloc;
 		value_compare	_compare;
 		size_type		_size;
 		_Node			_header;
+
+		void _move_data(RB_Tree& t)
+		{
+			_header.color = t._header.color;
+			_header.parent = t._header.parent;
+			_header.left = t._header.left;
+			_header.right = t._header.right;
+			_header.parent->parent = &_header;
+			this->_size = t._size;
+
+			t._reset();
+		}
 
 		const_node_pointer _root() const
 		{ return _header.parent; }
@@ -529,7 +630,7 @@ namespace ft
 			return iterator(y);
 		}
 
-		const_iterator _lower_bound(node_pointer x, node_pointer y,
+		const_iterator _lower_bound(const_node_pointer x, const_node_pointer y,
 							  const value_type& value) const
 		{
 			while (x != 0)
@@ -555,7 +656,7 @@ namespace ft
 			return iterator(y);
 		}
 
-		const_iterator _upper_bound(node_pointer x, node_pointer y,
+		const_iterator _upper_bound(const_node_pointer x, const_node_pointer y,
 							  const value_type& value) const
 		{
 			while (x != 0)
@@ -675,6 +776,17 @@ namespace ft
 
 			_delete_node(to_delete);
 			--this->_size;
+		}
+
+		void _erase(const_iterator first, const_iterator last)
+		{
+			if (first == begin() && last == end())
+				clear();
+			else
+			{
+				while (first != last)
+					_erase(first++);
+			}
 		}
 
 		/**
@@ -1091,6 +1203,12 @@ namespace ft
 			new_node->right = 0;
 			new_node->parent = 0;
 			return new_node;
+		}
+
+		friend bool operator==(const RB_Tree& lhs, const RB_Tree rhs)
+		{
+			return lhs.size() == rhs.size()
+				   && ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 		}
 	};
 

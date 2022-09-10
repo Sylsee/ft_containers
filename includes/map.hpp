@@ -140,6 +140,34 @@ namespace ft
 			return (*it).second;
 		}
 
+		mapped_type& at(const key_type& k)
+		{
+			iterator it = lower_bound(k);
+			if (it == end() || key_comp()(k, (*it).first))
+				throw("map::at out of range");
+			return (*it).second;
+		}
+
+		const mapped_type& at(const key_type& k) const
+		{
+			const_iterator it = lower_bound(k);
+			if (it == end() || key_comp()(k, (*it).first))
+				throw("map::at out of range");
+			return (*it).second;
+		}
+
+		void erase(iterator pos)
+		{ _tree.erase(pos); }
+
+		size_type erase(const key_type& k)
+		{ return (_tree.erase(value_type(k, mapped_type()))); }
+
+		void erase(iterator first, iterator last)
+		{ _tree.erase(first, last); }
+
+		void clear()
+		{ _tree.clear(); }
+
 		iterator lower_bound(const key_type& k)
 		{ return _tree.lower_bound(value_type(k, mapped_type())); }
 
@@ -152,20 +180,44 @@ namespace ft
 		const_iterator upper_bound(const key_type& k) const
 		{ return _tree.upper_bound(value_type(k, mapped_type())); }
 
-		inline void swap(map& x)
-		{ ft::swap(this->_tree, x._tree); }
+		void swap(map& x)
+		{ _tree.swap(x._tree); }
 
-		ft::pair<iterator, bool> insert(const value_type& x)
-		{ return _tree.insert(x); }
+		ft::pair<iterator, bool> insert(const value_type& value)
+		{ return _tree.insert(value); }
 
-		iterator insert(iterator pos, const value_type& x)
-		{ return _tree.insert(pos, x); }
+		iterator insert(iterator pos, const value_type& value)
+		{ return _tree.insert(pos, value); }
 
 		template<typename InputIterator>
-		void insert_range(InputIterator first, InputIterator last)
+		void insert(InputIterator first, InputIterator last)
 		{ _tree.insert_range(first, last); }
 
+		size_type count(const key_type& k) const
+		{ return _tree.find(value_type(k, mapped_type())) != _tree.end(); }
+
+		iterator find(const key_type* k)
+		{ return _tree.find(value_type(k, mapped_type())); }
+
+		const_iterator find(const key_type* k) const
+		{ return _tree.find(value_type(k, mapped_type())); }
+
+		ft::pair<iterator, iterator> equal_range(const key_type& k)
+		{ return _tree.equal_range(value_type(k, mapped_type())); }
+
+		ft::pair<const_iterator, const_iterator> equal_range(const key_type& k) const
+		{ return _tree.equal_range(value_type(k, mapped_type())); }
+
+		template<typename Key, typename T, typename Compare, typename Alloc>
+		friend bool operator==(const map<Key, T, Compare, Alloc>&,
+							   const map<Key, T, Compare, Alloc>&);
+
 	};
+
+	template<typename Key, typename T, typename Compare, typename Alloc>
+	inline bool operator==(const map<Key, T, Compare, Alloc>& lhs,
+						   const map<Key, T, Compare, Alloc>& rhs)
+	{ return lhs._tree == rhs._tree; }
 
 } /* namespace ft */
 

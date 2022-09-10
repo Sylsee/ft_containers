@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <bits/stl_tree.h>
 
-#ifdef STD
+#ifndef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
@@ -55,12 +55,13 @@ int main(void)
 	try
 	{
 		ft::map<int, std::string> m;
-		ft::pair<iterator, bool> tmp;
 
-		tmp = m.insert(val_type(1, "sans mil"));
+		m.insert(ft::pair<int, std::string>(1, "salut"));
+		m.insert(ft::pair<int, std::string>(2, "salut"));
+		m.insert(ft::pair<int, std::string>(3, "salut"));
+		m.insert(ft::pair<int, std::string>(4, "salut"));
 
-		std::cout << tmp.first->first << std::endl;
-		std::cout << tmp.second << std::endl;
+		m.at(10);
 
 		for (iterator it = m.begin(); it != m.end(); ++it)
 			std::cout << (*it).first << " " << (*it).second << std::endl;
