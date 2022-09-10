@@ -353,6 +353,7 @@ namespace ft
 		}
 
 		RB_Tree(const RB_Tree& x)
+		: _compare(x.key_comp())
 		{
 			if (x._root() != 0)
 				_root() = _copy(x);
@@ -361,7 +362,7 @@ namespace ft
 		~RB_Tree()
 		{ _erase(_header.parent); }
 
-		RB_Tree operator=(const RB_Tree& rhs)
+		RB_Tree& operator=(const RB_Tree& rhs)
 		{
 			if (this != &rhs)
 			{
@@ -453,14 +454,14 @@ namespace ft
 		pair<iterator, iterator> equal_range(value_type node)
 		{
 			typedef pair<iterator, iterator> res;
-			node_pointer x = begin();
-			node_pointer y = end();
+			node_pointer x = _header.left;
+			node_pointer y = &_header;
 
 			while (x != 0)
 			{
-				if (_compare(x->data, node))
+				if (_compare(*(x->data), node))
 					x = x->right;
-				else if (_compare(node, x->data))
+				else if (_compare(node, *(x->data)))
 				{
 					y = x;
 					x = x->left;
@@ -481,22 +482,22 @@ namespace ft
 		pair<const_iterator, const_iterator> equal_range(value_type node) const
 		{
 			typedef pair<const_iterator, const_iterator> res;
-			node_pointer x = begin();
-			node_pointer y = end();
+			const_node_pointer x = _header.left;
+			const_node_pointer y = &_header;
 
 			while (x != 0)
 			{
-				if (_compare(x->data, node))
+				if (_compare(*(x->data), node))
 					x = x->right;
-				else if (_compare(node, x->data))
+				else if (_compare(node, *(x->data)))
 				{
 					y = x;
 					x = x->left;
 				}
 				else
 				{
-					node_pointer tmp_x(x);
-					node_pointer tmp_y(y);
+					const_node_pointer tmp_x(x);
+					const_node_pointer tmp_y(y);
 					y = x;
 					x = x->left;
 					tmp_x = tmp_x->right;
