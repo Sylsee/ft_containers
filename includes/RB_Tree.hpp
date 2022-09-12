@@ -428,83 +428,75 @@ namespace ft
 		{ return const_iterator(&_header); }
 
 		inline reverse_iterator rbegin()
-		{ return reverse_iterator(_header.right); }
+		{ return reverse_iterator(end()); }
 
 		inline const_reverse_iterator rbegin() const
-		{ return const_reverse_iterator(_header.right); }
+		{ return const_reverse_iterator(end()); }
 
 		inline reverse_iterator rend()
-		{ return reverse_iterator(_header.left); }
+		{ return reverse_iterator(begin()); }
 
 		inline const_reverse_iterator rend() const
-		{ return const_reverse_iterator(_header.left); }
+		{ return const_reverse_iterator(begin()); }
 
 		iterator lower_bound(const value_type& value)
-		{ return _lower_bound(this->_header.parent, &this->_header, value); }
+		{ return _lower_bound(_root(), &_header, value); }
 
 		const_iterator lower_bound(const value_type& value) const
-		{ return _lower_bound(this->_header.parent, &this->_header, value); }
+		{ return _lower_bound(_root(), &_header, value); }
 
 		iterator upper_bound(const value_type& value)
-		{ return _upper_bound(this->_header.parent, &this->_header, value); }
+		{ return _upper_bound(_root(), &_header, value); }
 
 		const_iterator upper_bound(const value_type& value) const
-		{ return _upper_bound(this->_header.parent, &this->_header, value); }
+		{ return _upper_bound(_root(), &_header, value); }
 
-		pair<iterator, iterator> equal_range(value_type node)
+		pair<iterator, iterator> equal_range(const value_type& value)
 		{
-			typedef pair<iterator, iterator> res;
-			node_pointer x = _header.left;
+			node_pointer x = _root();
 			node_pointer y = &_header;
 
 			while (x != 0)
 			{
-				if (_compare(*(x->data), node))
+				if (_compare(*(x->data), value))
 					x = x->right;
-				else if (_compare(node, *(x->data)))
-				{
-					y = x;
-					x = x->left;
-				}
+				else if (_compare(value, *(x->data)))
+					y = x, x = x->left;
 				else
 				{
 					node_pointer tmp_x(x);
 					node_pointer tmp_y(y);
-					y = x;
-					x = x->left;
+					y = x, x = x->left;
 					tmp_x = tmp_x->right;
-					return res(_lower_bound(x, y, node), _upper_bound(tmp_x, tmp_y, node));
+					return pair<iterator, iterator>(_lower_bound(x, y, value),
+													_upper_bound(tmp_x, tmp_y, value));
 				}
 			}
-			return res(iterator(y), iterator(y));
+			return pair<iterator, iterator>(iterator(y), iterator(y));
 		}
 
-		pair<const_iterator, const_iterator> equal_range(value_type node) const
+		pair<const_iterator, const_iterator> equal_range(const value_type& value) const
 		{
-			typedef pair<const_iterator, const_iterator> res;
-			const_node_pointer x = _header.left;
+			const_node_pointer x = _root();
 			const_node_pointer y = &_header;
 
 			while (x != 0)
 			{
-				if (_compare(*(x->data), node))
+				if (_compare(*(x->data), value))
 					x = x->right;
-				else if (_compare(node, *(x->data)))
-				{
-					y = x;
-					x = x->left;
-				}
+				else if (_compare(value, *(x->data)))
+					y = x, x = x->left;
 				else
 				{
 					const_node_pointer tmp_x(x);
 					const_node_pointer tmp_y(y);
-					y = x;
-					x = x->left;
+					y = x, x = x->left;
 					tmp_x = tmp_x->right;
-					return res(_lower_bound(x, y, node), _upper_bound(tmp_x, tmp_y, node));
+					return pair<const_iterator, const_iterator>(_lower_bound(x, y, value),
+																_upper_bound(tmp_x, tmp_y, value));
 				}
 			}
-			return res(const_iterator(y), const_iterator(y));
+			return pair<const_iterator, const_iterator>(const_iterator(y), const_iterator(y));
 		}
 
 		pair<iterator, bool>	insert(const value_type& value)
@@ -564,15 +556,15 @@ namespace ft
 			ft::swap(this->_header, t._header);
 		}
 
-		iterator find(value_type& value)
+		iterator find(const value_type& value)
 		{
-			iterator it = _lower_bound(begin(), end(), value);
+			iterator it = _lower_bound(_left_most(), &_header, value);
 			return (it == end() || _compare(value, *it)) ? end() : it;
 		}
 
-		const_iterator find(value_type& value) const
+		const_iterator find(const value_type& value) const
 		{
-			const_iterator it = _lower_bound(begin(), end(), value);
+			const_iterator it = _lower_bound(_left_most(), &_header, value);
 			return (it == end() || _compare(value, *it)) ? end() : it;
 		}
 
@@ -773,7 +765,7 @@ namespace ft
 
 		void _erase(const_iterator pos)
 		{
-			node_pointer to_delete = _rebalance_for_erase(pos._node);
+			node_pointer to_delete = _rebalance_for_erase(const_cast<node_pointer const>(pos._node));
 
 			_delete_node(to_delete);
 			--this->_size;
@@ -877,7 +869,7 @@ namespace ft
 						{
 							y->color = BLACK;
 							x_parent->color = RED;
-							_rotate_left(x_parent, root);
+							_rotate_left(x_parent);
 							y = x_parent->right;
 						}
 						if ((y->left == 0 ||
@@ -895,14 +887,14 @@ namespace ft
 							{
 								y->left->color = BLACK;
 								y->color = RED;
-								_rotate_right(y, root);
+								_rotate_right(y);
 								y = x_parent->right;
 							}
 							y->color = x_parent->color;
 							x_parent->color = BLACK;
 							if (y->right)
 								y->right->color = BLACK;
-							_rotate_left(x_parent, root);
+							_rotate_left(x_parent);
 							break;
 						}
 					}
@@ -913,7 +905,7 @@ namespace ft
 						{
 							y->color = BLACK;
 							x_parent->color = RED;
-							_rotate_right(x_parent, root);
+							_rotate_right(x_parent);
 							y = x_parent->left;
 						}
 						if ((y->right == 0 ||
@@ -931,14 +923,14 @@ namespace ft
 							{
 								y->right->color = BLACK;
 								y->color = RED;
-								_rotate_left(y, root);
+								_rotate_left(y);
 								y = x_parent->left;
 							}
 							y->color = x_parent->color;
 							x_parent->color = BLACK;
 							if (y->left)
 								y->left->color = BLACK;
-							_rotate_right(x_parent, root);
+							_rotate_right(x_parent);
 							break;
 						}
 					}
@@ -994,6 +986,9 @@ namespace ft
 		inline node_pointer	_right_most()
 		{ return this->_header.right; }
 
+		inline const_node_pointer	_right_most() const
+		{ return this->_header.right; }
+
 		/**
 		 * @brief Get the minimum of the tree
 		 * 
@@ -1002,8 +997,8 @@ namespace ft
 		inline node_pointer	_left_most()
 		{ return this->_header.left; }
 
-		inline node_pointer _header_parent()
-		{ return this->_header.parent; }
+		inline const_node_pointer	_left_most() const
+		{ return this->_header.left; }
 
 		/**
 		 * @brief Find the position to insert a node
@@ -1206,10 +1201,16 @@ namespace ft
 			return new_node;
 		}
 
-		friend bool operator==(const RB_Tree& lhs, const RB_Tree rhs)
+		friend bool operator==(const RB_Tree& lhs, const RB_Tree& rhs)
 		{
 			return lhs.size() == rhs.size()
 				   && ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+		}
+
+		friend bool operator<(const RB_Tree& lhs, const RB_Tree& rhs)
+		{
+			return ft::lexicographical_compare(lhs.begin(), lhs.end(),
+											   rhs.begin(), rhs.end());
 		}
 	};
 
