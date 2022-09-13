@@ -144,7 +144,7 @@ namespace ft
 		{
 			iterator it = lower_bound(k);
 			if (it == end() || key_comp()(k, (*it).first))
-				throw("map::at out of range");
+				throw std::out_of_range("map::at out of range");
 			return (*it).second;
 		}
 
@@ -152,7 +152,7 @@ namespace ft
 		{
 			const_iterator it = lower_bound(k);
 			if (it == end() || key_comp()(k, (*it).first))
-				throw("map::at out of range");
+				throw std::out_of_range("map::at out of range");
 			return (*it).second;
 		}
 

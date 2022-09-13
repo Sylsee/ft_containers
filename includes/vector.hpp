@@ -117,18 +117,14 @@ namespace ft
 		 *
 		 * @param x Vector to copy
 		 */
-		vector(const vector &x) : _data(NULL)
-		{
-			*this = x;
-		}
+		vector(const vector& x) : _data(NULL)
+		{ *this = x; }
 
 		/**
 		 * @brief Destroy the vector object
 		 */
 		~vector(void)
-		{
-			this->_destroy();
-		}
+		{ this->_destroy(); }
 
 		/**
 		 * @brief Assignement operator
@@ -147,7 +143,8 @@ namespace ft
 				this->_size = rhs._size;
 				this->_capacity = rhs._size;
 
-				this->_data = this->_alloc.allocate(this->_capacity);
+				if (this->_capacity)
+					this->_data = this->_alloc.allocate(this->_capacity);
 				for (size_type n = 0; n < this->_size; n++)
 					this->_alloc.construct(&this->_data[n], rhs[n]);
 			}

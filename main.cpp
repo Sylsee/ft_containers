@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <bits/stl_tree.h>
 
-#ifndef STD
+#ifdef STD
 	#include <map>
 	#include <stack>
 	#include <vector>
@@ -54,6 +54,8 @@ int main(void)
 {
 	try
 	{
+		// std::cout << "Hello" << std::endl;
+
 		ft::map<int, std::string> m;
 
 		m.insert(ft::pair<int, std::string>(1, "salut"));
@@ -61,7 +63,7 @@ int main(void)
 		m.insert(ft::pair<int, std::string>(3, "salut"));
 		m.insert(ft::pair<int, std::string>(4, "salut"));
 
-		m.at(10);
+		// m.at(2);
 
 		for (iterator it = m.begin(); it != m.end(); ++it)
 			std::cout << (*it).first << " " << (*it).second << std::endl;

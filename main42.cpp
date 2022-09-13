@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main42.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: spoliart <sylvio.poliart@gmail.com>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/07 14:00:34 by spoliart          #+#    #+#             */
-/*   Updated: 2022/05/07 14:04:35 by spoliart         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <iostream>
 #include <string>
 #include <deque>
@@ -19,7 +7,7 @@
 	#include <vector>
 	namespace ft = std;
 #else
-//	#include <map.hpp>
+	#include <map.hpp>
 	#include <stack.hpp>
 	#include <vector.hpp>
 #endif
@@ -43,7 +31,7 @@ class MutantStack : public ft::stack<T>
 public:
 	MutantStack() {}
 	MutantStack(const MutantStack<T>& src) { *this = src; }
-	MutantStack<T>& operator=(const MutantStack<T>& rhs)
+	MutantStack<T>& operator=(const MutantStack<T>& rhs) 
 	{
 		this->c = rhs.c;
 		return *this;
@@ -99,7 +87,7 @@ int main(int argc, char** argv) {
 	{
 		//NORMAL ! :P
 	}
-
+	
 	for (int i = 0; i < COUNT; ++i)
 	{
 		map_int.insert(ft::make_pair(rand(), rand()));

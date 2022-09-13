@@ -50,6 +50,8 @@
 		"typeinfo": "cpp",
 		"stack": "cpp",
 		"list": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"optional": "cpp",
+		"fstream": "cpp"
 	}
 }

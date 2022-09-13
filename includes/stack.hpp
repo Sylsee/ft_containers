@@ -39,63 +39,50 @@ namespace ft
 		typedef typename _Sequence::const_reference const_reference;
 		typedef _Sequence							container_type;
 
-		explicit
-		stack(const _Sequence& __c = _Sequence())
+		explicit stack(const _Sequence& __c = _Sequence())
 		: c(__c) { }
 
-		bool
-		empty() const
+		bool empty() const
 		{ return c.empty(); }
 
-		size_type
-		size() const
+		size_type size() const
 		{ return c.size(); }
 
-		reference
-		top()
+		reference top()
 		{ return c.back(); }
 
-		const_reference
-		top() const
+		const_reference top() const
 		{ return c.back(); }
 
-		void
-		push(const value_type& val)
+		void push(const value_type& val)
 		{ c.push_back(val); }
 
-		void
-		pop()
+		void pop()
 		{ c.pop_back(); }
 	};
 
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator==(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator==(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return __lhs.c == __rhs.c; }
 	
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator!=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator!=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return !(__lhs == __rhs); }
 
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator<(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator<(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return __lhs.c < __rhs.c; }
 	
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator<=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator<=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return !(__rhs < __lhs); }
 	
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator>(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator>(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return __rhs < __lhs; }
 	
 	template<typename _Tp1, typename _Seq1>
-	inline bool
-	operator>=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
+	inline bool operator>=(const stack<_Tp1, _Seq1>& __lhs, const stack<_Tp1, _Seq1>& __rhs)
 	{ return !(__lhs < __rhs); }
 }
 
