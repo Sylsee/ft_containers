@@ -40,7 +40,7 @@ I		=	-Iincludes
 
 # [ SOURCES ] #
 
-SRCS	=	main42.cpp
+SRCS	=	main.cpp
 
 # [ OBJECTS ] #
 

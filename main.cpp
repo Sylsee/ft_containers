@@ -64,7 +64,12 @@ int main(void)
 		m.insert(ft::pair<int, std::string>(3, "salut"));
 		m.insert(ft::pair<int, std::string>(4, "salut"));
 
-		// m.at(2);
+		ft::map<int, std::string>::iterator s = m.find(2);
+
+		for (; s != m.end(); ++s)
+			std::cout << (*s).first << " " << (*s).second << std::endl;
+
+		std::cout << std::endl << std::endl;
 
 		for (iterator it = m.begin(); it != m.end(); ++it)
 			std::cout << (*it).first << " " << (*it).second << std::endl;

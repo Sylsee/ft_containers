@@ -461,12 +461,16 @@ namespace ft
 				if (_compare(*(x->data), value))
 					x = x->right;
 				else if (_compare(value, *(x->data)))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 				{
 					node_pointer tmp_x(x);
 					node_pointer tmp_y(y);
-					y = x, x = x->left;
+					y = x;
+					x = x->left;
 					tmp_x = tmp_x->right;
 					return pair<iterator, iterator>(_lower_bound(x, y, value),
 													_upper_bound(tmp_x, tmp_y, value));
@@ -485,12 +489,16 @@ namespace ft
 				if (_compare(*(x->data), value))
 					x = x->right;
 				else if (_compare(value, *(x->data)))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 				{
 					const_node_pointer tmp_x(x);
 					const_node_pointer tmp_y(y);
-					y = x, x = x->left;
+					y = x;
+					x = x->left;
 					tmp_x = tmp_x->right;
 					return pair<const_iterator, const_iterator>(_lower_bound(x, y, value),
 																_upper_bound(tmp_x, tmp_y, value));
@@ -558,13 +566,13 @@ namespace ft
 
 		iterator find(const value_type& value)
 		{
-			iterator it = _lower_bound(_left_most(), &_header, value);
+			iterator it = _lower_bound(_root(), &_header, value);
 			return (it == end() || _compare(value, *it)) ? end() : it;
 		}
 
 		const_iterator find(const value_type& value) const
 		{
-			const_iterator it = _lower_bound(_left_most(), &_header, value);
+			const_iterator it = _lower_bound(_root(), &_header, value);
 			return (it == end() || _compare(value, *it)) ? end() : it;
 		}
 
@@ -616,7 +624,10 @@ namespace ft
 			while (x != 0)
 			{
 				if (!_compare(*(x->data), value))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 					x = x->right;
 			}
@@ -629,7 +640,10 @@ namespace ft
 			while (x != 0)
 			{
 				if (!_compare(*(x->data), value))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 					x = x->right;
 			}
@@ -642,7 +656,10 @@ namespace ft
 			while (x != 0)
 			{
 				if (_compare(value, *(x->data)))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 					x = x->right;
 			}
@@ -655,7 +672,10 @@ namespace ft
 			while (x != 0)
 			{
 				if (_compare(value, *(x->data)))
-					y = x, x = x->left;
+				{
+					y = x;
+					x = x->left;
+				}
 				else
 					x = x->right;
 			}
