@@ -16,6 +16,7 @@
 #include <bits/stl_tree.h>
 
 #ifdef STD
+	#include <set>
 	#include <map>
 	#include <stack>
 	#include <vector>

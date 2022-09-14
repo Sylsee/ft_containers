@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef SET_HPP
+#define SET_HPP
 
 #include <functional>
 #include <memory>
@@ -29,29 +29,12 @@ namespace ft
 		typedef _Key									 key_type;
 		typedef _Key									 value_type;
 		typedef _Compare								 key_compare;
+		typedef _Compare								 value_compare;
 		typedef _Alloc									 allocator_type;
 		typedef typename allocator_type::reference		 reference;
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer		 pointer;
 		typedef typename allocator_type::const_pointer	 const_pointer;
-		typedef ptrdiff_t								 difference_type;
-		typedef size_t									 size_type;
-
-		class value_compare
-		: public std::binary_function<value_type, value_type, bool>
-		{
-			friend class set<_Key, _Compare, _Alloc>;
-
-		protected:
-			key_compare comp;
-
-			value_compare(key_compare __c)
-			: comp(__c) { }
-
-		public:
-			bool operator()(const value_type& __x, const value_type& __y) const
-			{ return comp(__x, __y); }
-		};
 
 	private:
 		typedef RB_Tree<value_type, value_compare, allocator_type>	_RB_Tree;
@@ -59,9 +42,11 @@ namespace ft
 		_RB_Tree _tree;
 
 	public:
-		typedef typename _RB_Tree::iterator					 iterator;
+		typedef typename _RB_Tree::difference_type			 difference_type;
+		typedef typename _RB_Tree::size_type				 size_type;
+		typedef typename _RB_Tree::const_iterator			 iterator;
 		typedef typename _RB_Tree::const_iterator			 const_iterator;
-		typedef typename _RB_Tree::reverse_iterator			 reverse_iterator;
+		typedef typename _RB_Tree::const_reverse_iterator	 reverse_iterator;
 		typedef typename _RB_Tree::const_reverse_iterator	 const_reverse_iterator;
 
 		explicit set(const key_compare& comp = key_compare(),
@@ -89,37 +74,25 @@ namespace ft
 			return *this;
 		}
 
+		key_compare key_comp() const
+		{ return _tree.key_comp(); }
+
+		value_compare value_comp() const
+		{ return _tree.key_comp(); }
+
 		allocator_type get_allocator() const
 		{ return allocator_type(_tree.get_allocator()); }
 
-		key_compare key_comp() const
-		{ return key_compare(); }
-
-		value_compare value_comp() const
-		{ return value_compare(_tree.key_comp()); }
-
-		inline iterator begin()
+		inline iterator begin() const
 		{ return _tree.begin(); }
 
-		inline const_iterator begin() const
-		{ return _tree.begin(); }
-
-		inline iterator end()
+		inline iterator end() const
 		{ return _tree.end(); }
 
-		inline const_iterator end() const
-		{ return _tree.end(); }
-
-		inline reverse_iterator rbegin()
+		inline reverse_iterator rbegin() const
 		{ return _tree.rbegin(); }
 
-		inline const_reverse_iterator rbegin() const
-		{ return _tree.rbegin(); }
-
-		inline reverse_iterator rend()
-		{ return _tree.rend(); }
-
-		inline const_reverse_iterator rend() const
+		inline reverse_iterator rend() const
 		{ return _tree.rend(); }
 
 		inline bool empty() const
@@ -130,54 +103,6 @@ namespace ft
 
 		inline size_type max_size() const
 		{ return _tree.max_size(); }
-
-		mapped_type& operator[](const key_type& k)
-		{
-			iterator it = lower_bound(k);
-			if (it == end() || key_comp()(k, *it))
-				it = insert(it, k);
-			return *it;
-		}
-
-		mapped_type& at(const key_type& k)
-		{
-			iterator it = lower_bound(k);
-			if (it == end() || key_comp()(k, *it))
-				throw std::out_of_range("set::at out of range");
-			return *it;
-		}
-
-		const mapped_type& at(const key_type& k) const
-		{
-			const_iterator it = lower_bound(k);
-			if (it == end() || key_comp()(k, *it))
-				throw std::out_of_range("set::at out of range");
-			return *it;
-		}
-
-		void erase(iterator pos)
-		{ _tree.erase(pos); }
-
-		size_type erase(const key_type& k)
-		{ return (_tree.erase(k)); }
-
-		void erase(iterator first, iterator last)
-		{ _tree.erase(first, last); }
-
-		void clear()
-		{ _tree.clear(); }
-
-		iterator lower_bound(const key_type& k)
-		{ return _tree.lower_bound(k); }
-
-		const_iterator lower_bound(const key_type& k) const
-		{ return _tree.lower_bound(k); }
-
-		iterator upper_bound(const key_type& k)
-		{ return _tree.upper_bound(k); }
-
-		const_iterator upper_bound(const key_type& k) const
-		{ return _tree.upper_bound(k); }
 
 		void swap(set& x)
 		{ _tree.swap(x._tree); }
@@ -192,14 +117,38 @@ namespace ft
 		void insert(InputIterator first, InputIterator last)
 		{ _tree.insert_range(first, last); }
 
+		void erase(iterator pos)
+		{ _tree.erase(pos); }
+
+		size_type erase(const key_type& k)
+		{ return _tree.erase(k); }
+
+		void erase(iterator first, iterator last)
+		{ _tree.erase(first, last); }
+
+		void clear()
+		{ _tree.clear(); }
+
 		size_type count(const key_type& k) const
-		{ return _tree.find(k) != _tree.end(); }
+		{ return _tree.find(k) == _tree.end() ? 0 : 1; }
 
 		iterator find(const key_type& k)
 		{ return _tree.find(k); }
 
 		const_iterator find(const key_type& k) const
 		{ return _tree.find(k); }
+
+		iterator lower_bound(const key_type& k)
+		{ return _tree.lower_bound(k); }
+
+		const_iterator lower_bound(const key_type& k) const
+		{ return _tree.lower_bound(k); }
+
+		iterator upper_bound(const key_type& k)
+		{ return _tree.upper_bound(k); }
+
+		const_iterator upper_bound(const key_type& k) const
+		{ return _tree.upper_bound(k); }
 
 		ft::pair<iterator, iterator> equal_range(const key_type& k)
 		{ return _tree.equal_range(k); }
@@ -256,4 +205,4 @@ namespace ft
 } /* namespace ft */
 
 
-#endif /* MAP_HPP */
+#endif /* SET_HPP */

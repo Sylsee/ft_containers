@@ -35,8 +35,6 @@ namespace ft
 		typedef typename allocator_type::const_reference const_reference;
 		typedef typename allocator_type::pointer		 pointer;
 		typedef typename allocator_type::const_pointer	 const_pointer;
-		typedef ptrdiff_t								 difference_type;
-		typedef size_t									 size_type;
 
 		class value_compare
 		: public std::binary_function<value_type, value_type, bool>
@@ -64,6 +62,8 @@ namespace ft
 		typedef typename _RB_Tree::const_iterator			 const_iterator;
 		typedef typename _RB_Tree::reverse_iterator			 reverse_iterator;
 		typedef typename _RB_Tree::const_reverse_iterator	 const_reverse_iterator;
+		typedef typename _RB_Tree::difference_type			 difference_type;
+		typedef typename _RB_Tree::size_type				 size_type;
 
 		explicit map (const key_compare& comp = key_compare(),
 					  const allocator_type& alloc = allocator_type())
@@ -94,7 +94,7 @@ namespace ft
 		{ return allocator_type(_tree.get_allocator()); }
 
 		key_compare key_comp() const
-		{ return key_compare(); }
+		{ return _tree.key_comp(); }
 
 		value_compare value_comp() const
 		{ return value_compare(_tree.key_comp()); }
@@ -156,6 +156,16 @@ namespace ft
 			return (*it).second;
 		}
 
+		ft::pair<iterator, bool> insert(const value_type& value)
+		{ return _tree.insert(value); }
+
+		iterator insert(iterator pos, const value_type& value)
+		{ return _tree.insert(pos, value); }
+
+		template<typename InputIterator>
+		void insert(InputIterator first, InputIterator last)
+		{ _tree.insert_range(first, last); }
+
 		void erase(iterator pos)
 		{ _tree.erase(pos); }
 
@@ -165,8 +175,20 @@ namespace ft
 		void erase(iterator first, iterator last)
 		{ _tree.erase(first, last); }
 
+		void swap(map& x)
+		{ _tree.swap(x._tree); }
+
 		void clear()
 		{ _tree.clear(); }
+
+		iterator find(const key_type& k)
+		{ return _tree.find(value_type(k, mapped_type())); }
+
+		const_iterator find(const key_type& k) const
+		{ return _tree.find(value_type(k, mapped_type())); }
+
+		size_type count(const key_type& k) const
+		{ return _tree.find(value_type(k, mapped_type())) == _tree.end() ? 0 : 1; }
 
 		iterator lower_bound(const key_type& k)
 		{ return _tree.lower_bound(value_type(k, mapped_type())); }
@@ -179,28 +201,6 @@ namespace ft
 
 		const_iterator upper_bound(const key_type& k) const
 		{ return _tree.upper_bound(value_type(k, mapped_type())); }
-
-		void swap(map& x)
-		{ _tree.swap(x._tree); }
-
-		ft::pair<iterator, bool> insert(const value_type& value)
-		{ return _tree.insert(value); }
-
-		iterator insert(iterator pos, const value_type& value)
-		{ return _tree.insert(pos, value); }
-
-		template<typename InputIterator>
-		void insert(InputIterator first, InputIterator last)
-		{ _tree.insert_range(first, last); }
-
-		size_type count(const key_type& k) const
-		{ return _tree.find(value_type(k, mapped_type())) != _tree.end(); }
-
-		iterator find(const key_type& k)
-		{ return _tree.find(value_type(k, mapped_type())); }
-
-		const_iterator find(const key_type& k) const
-		{ return _tree.find(value_type(k, mapped_type())); }
 
 		ft::pair<iterator, iterator> equal_range(const key_type& k)
 		{ return _tree.equal_range(value_type(k, mapped_type())); }
