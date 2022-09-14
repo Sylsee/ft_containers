@@ -17,9 +17,8 @@
 #include <functional>
 #include <stdexcept>
 #include <cstddef>
-#include <traits.hpp>
-#include <iterator.hpp>
-#include <vector>
+#include "traits.hpp"
+#include "iterator.hpp"
 
 namespace ft
 {
@@ -307,16 +306,6 @@ namespace ft
 	{
 	protected:
 		typedef Node<_Tp>	_Node;
-
-#include <../visualizer/map_display.hpp>
-
-	public:
-
-		/**
-		 * Helper who print the tree with color
-		 */
-		void print_tree()
-		{ print_tree(_header.parent); }
 
 	public:
 		typedef _Tp									 value_type;
