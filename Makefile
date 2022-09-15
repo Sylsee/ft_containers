@@ -12,7 +12,7 @@
 
 # [ VARIABLES ] #
 
-NAME	=	containers
+NAME	=	test
 RM		=	/bin/rm -rf
 MAKE	=	make
 
@@ -25,8 +25,8 @@ _YELLOW	=	\e[33m
 
 # [ COMPILATION VARIABLES ]#
 
-CC		=	c++
-CFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g3
+# CC		=	c++
+CFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g
 
 # [ VALGRIND VARIABLES ] #
 
@@ -36,7 +36,7 @@ VFLAGS		=	--leak-check=full --show-leak-kinds=all --track-origins=yes
 # [ DIRECTORIES ] #
 
 O		=	objs/
-I		=	-Iincludes
+I		=	-Icontainers
 
 # [ SOURCES ] #
 
@@ -48,7 +48,7 @@ OBJS	=	$(SRCS:%.cpp=$O%.o)
 
 # [ PATH ] #
 
-VPATH	=	includes
+VPATH	=	containers
 
 # [ RULES ] #
 
@@ -56,7 +56,7 @@ all:		$(NAME)
 
 $(NAME):	$(OBJS)
 			@printf "\033[2K\r$(_GREEN) All files compiled into '$O'. $(_END)✅\n"
-			@$(CC) $(CFLAGS) $^ -o $@
+			@$(CXX) $(CFLAGS) $(CXXFLAGS) $^ -o $@
 			@printf "$(_GREEN) Binary '$(NAME)' created. $(_END)✅\n"
 
 $O:
@@ -64,7 +64,7 @@ $O:
 
 $O%.o:		%.cpp	| $O
 			@printf "\033[2K\r $(_YELLOW)Compiling $< $(_END)⌛"
-			@$(CC) $(CFLAGS) $I -c $< -o $@
+			@$(CXX) $(CFLAGS) $(CXXFLAGS) $I -c $< -o $@
 
 clean:
 			@$(RM) $O

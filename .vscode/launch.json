@@ -9,7 +9,7 @@
             "name": "ft_containers",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/containers",
+            "program": "${workspaceFolder}/test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
