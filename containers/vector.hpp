@@ -64,6 +64,7 @@ namespace ft
 		 */
 		explicit vector(const allocator_type &alloc = allocator_type())
 		: _alloc(alloc),
+		  _data(NULL),
 		  _size(0),
 		  _capacity(0)
 		{ }
@@ -311,12 +312,12 @@ namespace ft
 				pointer tmp_data = this->_data;
 
 				this->_data = this->_alloc.allocate(__n);
-				for (size_type i = 0; i < size(); i++)
+				for (size_type i = 0; i < size(); ++i)
 				{
-					this->_alloc.construct(this->_data + i, *(tmp_data + i));
+					this->_alloc.construct(this->_data + i, tmp_data[i]);
 					this->_alloc.destroy(tmp_data + i);
 				}
-				if (size())
+				if (capacity())
 					this->_alloc.deallocate(tmp_data, capacity());
 
 				this->_capacity = __n;
@@ -479,7 +480,7 @@ namespace ft
 		 *
 		 * @param val The value to fill the vector with.
 		 */
-		inline void push_back(const value_type& val)
+		void push_back(const value_type& val)
 		{
 			if (size() + 1 > capacity())
 				reserve(capacity() ? capacity() * 2 : 1);
@@ -503,6 +504,8 @@ namespace ft
 		 */
 		iterator insert(iterator position, const value_type &val)
 		{
+			difference_type pos = position - begin();
+
 			if (size() + 1 > capacity())
 			{
 				const size_type new_capacity = capacity() ? capacity() * 2 : 1;
@@ -533,7 +536,7 @@ namespace ft
 
 				this->_size++;
 			}
-			return (iterator(this->_data + (position - begin())));
+			return begin() + pos;
 		}
 
 		/**
@@ -612,9 +615,9 @@ namespace ft
 
 				size_type __size = size() + __len;
 				this->_destroy();
+				this->_data = __start;
 				this->_size = __size;
 				this->_capacity = __new_capacity;
-				this->_data = __start;
 			}
 			else
 			{
@@ -720,7 +723,7 @@ namespace ft
 		{
 			this->clear();
 			if (capacity())
-				this->_alloc.deallocate(this->_data, this->_capacity);
+				this->_alloc.deallocate(this->_data, capacity());
 			this->_capacity = 0;
 			this->_data = NULL;
 		}
