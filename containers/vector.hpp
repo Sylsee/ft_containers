@@ -64,7 +64,6 @@ namespace ft
 		 */
 		explicit vector(const allocator_type &alloc = allocator_type())
 		: _alloc(alloc),
-		  _data(NULL),
 		  _size(0),
 		  _capacity(0)
 		{ }

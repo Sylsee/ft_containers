@@ -25,8 +25,8 @@ _YELLOW	=	\e[33m
 
 # [ COMPILATION VARIABLES ]#
 
-# CC		=	c++
-CFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g
+CXX		=	c++
+CXXFLAGS=	-Wall -Wextra -Werror --std=c++98 -g
 
 # [ VALGRIND VARIABLES ] #
 
@@ -40,7 +40,7 @@ I		=	-Icontainers
 
 # [ SOURCES ] #
 
-SRCS	=	main42.cpp
+SRCS	=	main.cpp
 
 # [ OBJECTS ] #
 
@@ -56,7 +56,7 @@ all:		$(NAME)
 
 $(NAME):	$(OBJS)
 			@printf "\033[2K\r$(_GREEN) All files compiled into '$O'. $(_END)✅\n"
-			@$(CXX) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+			@$(CXX) $(CXXFLAGS) $^ -o $@
 			@printf "$(_GREEN) Binary '$(NAME)' created. $(_END)✅\n"
 
 $O:
@@ -64,7 +64,7 @@ $O:
 
 $O%.o:		%.cpp	| $O
 			@printf "\033[2K\r $(_YELLOW)Compiling $< $(_END)⌛"
-			@$(CXX) $(CFLAGS) $(CXXFLAGS) $I -c $< -o $@
+			@$(CXX) $(CXXFLAGS) $I -c $< -o $@
 
 clean:
 			@$(RM) $O
