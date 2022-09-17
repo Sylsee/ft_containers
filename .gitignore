@@ -1,5 +1,4 @@
 objs/
 bin/
 log/
-containers
 containers_test
