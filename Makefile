@@ -40,7 +40,7 @@ I		=	-Icontainers
 
 # [ SOURCES ] #
 
-SRCS	=	main.cpp
+SRCS	=	main42.cpp
 
 # [ OBJECTS ] #
 
