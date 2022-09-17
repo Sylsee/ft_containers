@@ -329,6 +329,13 @@ namespace ft
 		typedef const _Node*						 const_node_pointer;
 		typedef _Node&								 node_reference;
 
+	protected:
+		node_allocator	_node_alloc;
+		value_compare	_compare;
+		size_type		_size;
+		_Node			_header;
+
+	public:
 		RB_Tree(const value_compare &comp = value_compare(),
 				const allocator_type &a = allocator_type())
 		: _node_alloc(node_allocator(a)),
@@ -508,7 +515,18 @@ namespace ft
 										, false);
 		}
 
-		iterator insert(iterator pos, const value_type& data)
+		// iterator insert(iterator pos, const value_type& data)
+		// {
+		// 	pair<node_pointer, node_pointer> new_pos =
+		// 		_get_insert_pos(pos, data);
+
+		// 	if (new_pos.second)
+		// 		return _insert(new_pos.first, new_pos.second, _new_node(data));
+		// 	return iterator(new_pos.first);
+		// }
+
+
+		iterator insert(const_iterator pos, const value_type& data)
 		{
 			pair<node_pointer, node_pointer> new_pos =
 				_get_insert_pos(pos, data);
@@ -528,6 +546,9 @@ namespace ft
 		void erase(iterator pos)
 		{ _erase(pos); }
 
+		void erase(const_iterator pos)
+		{ _erase(pos); }
+
 		size_type erase(value_type node)
 		{
 			pair<iterator, iterator> pos = equal_range(node);
@@ -539,6 +560,9 @@ namespace ft
 		void erase(iterator first, iterator last)
 		{ _erase(first, last); }
 
+		void erase(const_iterator first, const_iterator last)
+		{ _erase(first, last); }
+
 		void clear()
 		{
 			_erase(_header.left);
@@ -547,10 +571,15 @@ namespace ft
 
 		void swap(RB_Tree& t)
 		{
+
+			ft::swap(this->_root(), t._root());
+			ft::swap(this->_left_most(), t._left_most());
+			ft::swap(this->_right_most(), t._right_most());
+			_root()->parent = &_header;
+			t._root()->parent = &t._header;
+			ft::swap(this->_size, t._size);
 			ft::swap(this->_node_alloc, t._node_alloc);
 			ft::swap(this->_compare, t._compare);
-			ft::swap(this->_size, t._size);
-			ft::swap(this->_header, t._header);
 		}
 
 		iterator find(const value_type& value)
@@ -566,10 +595,6 @@ namespace ft
 		}
 
 	protected:
-		node_allocator	_node_alloc;
-		value_compare	_compare;
-		size_type		_size;
-		_Node			_header;
 
 		void _move_data(RB_Tree& t)
 		{
@@ -584,7 +609,7 @@ namespace ft
 		}
 
 		const_node_pointer _root() const
-		{ return _header.parent; }
+		{ return this->_header.parent; }
 
 		/**
 		 * @brief Get the root of the tree
@@ -592,7 +617,7 @@ namespace ft
 		 * @return node_pointer& the root
 		 */
 		node_pointer& _root()
-		{ return _header.parent; }
+		{ return this->_header.parent; }
 
 		/**
 		 * @brief Reset the tree
@@ -992,10 +1017,10 @@ namespace ft
 		 * 
 		 * @return node_pointer the maximum of the tree
 		 */
-		inline node_pointer	_right_most()
+		node_pointer&	_right_most()
 		{ return this->_header.right; }
 
-		inline const_node_pointer	_right_most() const
+		const_node_pointer	_right_most() const
 		{ return this->_header.right; }
 
 		/**
@@ -1003,10 +1028,10 @@ namespace ft
 		 * 
 		 * @return node_pointer the minimum of the tree
 		 */
-		inline node_pointer	_left_most()
+		node_pointer&	_left_most()
 		{ return this->_header.left; }
 
-		inline const_node_pointer	_left_most() const
+		const_node_pointer	_left_most() const
 		{ return this->_header.left; }
 
 		/**
@@ -1043,9 +1068,9 @@ namespace ft
 		}
 
 		pair<node_pointer, node_pointer>
-		_get_insert_pos(iterator position, const value_type& new_val)
+		_get_insert_pos(const_iterator position, const value_type& new_val)
 		{
-			iterator pos = position;
+			iterator pos = iterator(const_cast<typename iterator::_Base>(position._node));
 			typedef pair<node_pointer, node_pointer> res;
 
 			if (pos._node == &_header)
