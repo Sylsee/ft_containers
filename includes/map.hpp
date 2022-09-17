@@ -94,7 +94,7 @@ namespace ft
 		{ return allocator_type(_tree.get_allocator()); }
 
 		key_compare key_comp() const
-		{ return _tree.key_comp(); }
+		{ return key_compare(); }
 
 		value_compare value_comp() const
 		{ return value_compare(_tree.key_comp()); }

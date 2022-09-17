@@ -22,7 +22,7 @@
 namespace ft
 {
 	template<typename _Key, typename _Compare = std::less<_Key>,
-			 typename _Alloc = std::allocator<_Key> > >
+			 typename _Alloc = std::allocator<_Key> >
 	class set
 	{
 	public:

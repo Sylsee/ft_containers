@@ -9,7 +9,7 @@
             "name": "ft_containers",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/containers",
+            "program": "${workspaceFolder}/containers_test/ft.map.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
