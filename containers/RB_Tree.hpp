@@ -515,17 +515,6 @@ namespace ft
 										, false);
 		}
 
-		// iterator insert(iterator pos, const value_type& data)
-		// {
-		// 	pair<node_pointer, node_pointer> new_pos =
-		// 		_get_insert_pos(pos, data);
-
-		// 	if (new_pos.second)
-		// 		return _insert(new_pos.first, new_pos.second, _new_node(data));
-		// 	return iterator(new_pos.first);
-		// }
-
-
 		iterator insert(const_iterator pos, const value_type& data)
 		{
 			pair<node_pointer, node_pointer> new_pos =
@@ -565,7 +554,7 @@ namespace ft
 
 		void clear()
 		{
-			_erase(_header.left);
+			_erase(_root());
 			_reset();
 		}
 

@@ -311,25 +311,13 @@ namespace ft
 				pointer tmp_data = this->_alloc.allocate(__n);
 
 				for (size_type i = 0; i < size(); ++i)
-					this->_alloc.construct(tmp_data, this->_data[i]);
+					this->_alloc.construct(tmp_data + i, this->_data[i]);
 
 				const size_type tmp_size = size();
 				this->_destroy();
 				this->_data = tmp_data;
 				this->_size = tmp_size;
 				this->_capacity = __n;
-				// pointer tmp_data = this->_data;
-// 
-				// this->_data = this->_alloc.allocate(__n);
-				// for (size_type i = 0; i < size(); ++i)
-				// {
-					// this->_alloc.construct(this->_data + i, tmp_data[i]);
-					// this->_alloc.destroy(tmp_data + i);
-				// }
-				// if (capacity())
-					// this->_alloc.deallocate(tmp_data, capacity());
-// 
-				// this->_capacity = __n;
 			}
 		}
 
@@ -583,9 +571,7 @@ namespace ft
 			}
 			else
 			{
-				// const size_type range_to_move = end() - position;
-
-				for (difference_type i = size(); i >= position - begin(); --i)
+				for (difference_type i = size() - 1; i >= position - begin(); --i)
 				{
 					this->_alloc.construct(this->_data + i + n, this->_data[i]);
 					this->_alloc.destroy(this->_data + i);
@@ -617,54 +603,34 @@ namespace ft
 			{
 				size_type __new_capacity = ft::max(capacity() * 2, size() + __len);
 
-				pointer tmp_data = this->_data;
+				pointer tmp_data = this->_alloc.allocate(__new_capacity);
 
 				size_type i = 0;
 				const size_type pos = position - begin();
 
-				this->_data = this->_alloc.allocate(__new_capacity);
-
 				for (; i < pos; ++i)
-					this->_alloc.construct(this->_data + i, tmp_data[i]);
-				for (; first != last; ++first)
-					this->_alloc.construct(this->_data + (last - first), *first);
-				for (; i < size(); ++i)
-					this->_alloc.construct(this->_data + i + __len, tmp_data[i]);
+					this->_alloc.construct(tmp_data + i, this->_data[i]);
+				const size_type tmp_i = i;
+				for (; first != last; ++first, ++i)
+					this->_alloc.construct(tmp_data + i, *first);
+				for (i = tmp_i; i < size(); ++i)
+					this->_alloc.construct(tmp_data + i + __len, this->_data[i]);
 
-				for (i = 0; i < size(); ++i)
-					this->_alloc.destroy(tmp_data + i);
-				if (capacity())
-					this->_alloc.deallocate(tmp_data, capacity());
-
-				this->_size = size() + __len;
+				const size_type tmp_size = size();
+				this->_destroy();
+				this->_data = tmp_data;
+				this->_size = tmp_size + __len;
 				this->_capacity = __new_capacity;
-
-				// size_type __new_capacity = ft::max(capacity() * 2, size() + __len);
-
-				// pointer __start = this->_alloc.allocate(__new_capacity);
-				// pointer __current = __start;
-
-				// iterator it = begin();
-				// for (; it != position; ++it, ++__current)
-				// 	this->_alloc.construct(__current, *it);
-				// for (; first != last; ++first, ++__current)
-				// 	this->_alloc.construct(__current, *first);
-				// for (; it != end(); ++it, ++__current)
-				// 	this->_alloc.construct(__current, *it);
-
-				// size_type __size = size() + __len;
-				// this->_destroy();
-				// this->_data = __start;
-				// this->_size = __size;
-				// this->_capacity = __new_capacity;
 			}
 			else
 			{
-				for (size_type i = end() - begin() + __len; i > position - begin() + __len; i--) {
+				for (size_type i = end() - begin() + __len; i >= position - begin() + __len; i--)
+				{
 					this->_alloc.construct(this->_data + i, this->_data[i - __len]);
 					this->_alloc.destroy(&this->_data[i - __len]);
 				}
-				for (size_type i = position - begin(); first != last; i++) {
+				for (size_type i = position - begin(); first != last; i++)
+				{
 					this->_alloc.construct(this->_data + i, *first);
 					first++;
 				}
