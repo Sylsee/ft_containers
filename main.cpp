@@ -9,7 +9,292 @@
 /*   Updated: 2022/05/07 14:00:24 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
+    // std::cout << "*************************************************************************" << std::endl;
+    // std::cout << "\t\t\t\tVector" << std::endl;
+    // std::cout << "*************************************************************************" << std::endl;
+    //NOTE - Constructor
+    // {
+    //     std::cout << "------------- Vector Constructors -------------" << std::endl;
+    //     ft::vector<int> first1;
+    //     ft::vector<int> second(4, 100);
+    //     ft::vector<int> third(second.begin(), second.end());
+    //     ft::vector<int> fourth(third);
+    //     int myints[] = {16, 2, 77, 29};
+    //     ft::vector<int> fifth(myints, myints + sizeof(myints) / sizeof(int));
+    //     std::cout << "The contents of fifth are:";
+    //     for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+    //         std::cout << ' ' << *it;
+    //     std::cout << '\n';
+    // }
+    // //NOTE - Assign content (operator=)
+    // {
+    //     std::cout << "------------- Assignment operator -------------" << std::endl;
+    //     ft::vector<int> foo1(3, 0);
+    //     ft::vector<int> bar1(5, 0);
+    //     bar1 = foo1;
+    //     foo1 = ft::vector<int>();
+    //     std::cout << "Size of foo: " << int(foo1.size()) << '\n';
+    //     std::cout << "Size of bar: " << int(bar1.size()) << '\n';
+    // }
+    // //NOTE - Return iterator to beginning
+    // {
+    //     std::cout << "------------- begin() -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     for (int i = 1; i <= 5; i++)
+    //         myvector1.push_back(i);
+    //     std::cout << "myvector contains:";
+    //     for (ft::vector<int>::iterator it = myvector1.begin(); it != myvector1.end(); ++it)
+    //         std::cout << ' ' << *it;
+    //     std::cout << '\n';
+    // }
+    // //NOTE - Return iterator to end
+    // {
+    //     std::cout << "------------- end() -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     for (int i = 1; i <= 5; i++)
+    //         myvector1.push_back(i);
+    //     std::cout << "myvector contains:";
+    //     for (ft::vector<int>::iterator it = myvector1.begin(); it != myvector1.end(); ++it)
+    //         std::cout << ' ' << *it;
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Return reverse iterator to reverse beginning
+    // {
+    //     std::cout << "------------- reverse begin -------------" << std::endl;
+    //     ft::vector<int> myvector1(5); // 5 default-constructed ints
+    //     int i1 = 0;
+    //     ft::vector<int>::reverse_iterator rit1 = myvector1.rbegin();
+    //     for (; rit1 != myvector1.rend(); ++rit1)
+    //         *rit1 = ++i1;
+    //     std::cout << "myvector contains:";
+    //     for (ft::vector<int>::iterator it1 = myvector1.begin(); it1 != myvector1.end(); ++it1)
+    //         std::cout << ' ' << *it1;
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Return reverse iterator to reverse end
+    // {
+    //     std::cout << "------------- reverse end -------------" << std::endl;
+    //     ft::vector<int> myvector1(5);
+    //     ft::vector<int>::reverse_iterator rit1 = myvector1.rbegin();
+    //     int i1 = 0;
+    //     for (rit1 = myvector1.rbegin(); rit1 != myvector1.rend(); ++rit1)
+    //         *rit1 = ++i1;
+    //     std::cout << "myvector contains:";
+    //     for (ft::vector<int>::iterator it1 = myvector1.begin(); it1 != myvector1.end(); ++it1)
+    //         std::cout << ' ' << *it1;
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Return size
+    // {
+    //     std::cout << "------------- vector size -------------" << std::endl;
+    //     ft::vector<int> myints1;
+    //     std::cout << "0. size: " << myints1.size() << '\n';
+    //     for (int i = 0; i < 10; i++)
+    //         myints1.push_back(i);
+    //     std::cout << "1. size: " << myints1.size() << '\n';
+    //     myints1.insert(myints1.end(), 10, 100);
+    //     std::cout << "2. size: " << myints1.size() << '\n';
+    //     myints1.pop_back();
+    //     std::cout << "3. size: " << myints1.size() << '\n';
+    // }
+    // // NOTE - Return maximum size
+    // {
+    //     std::cout << "------------- vector max size -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     for (int i = 0; i < 100; i++)
+    //         myvector1.push_back(i);
+    //     std::cout << "size: " << myvector1.size() << "\n";
+    //     std::cout << "capacity: " << myvector1.capacity() << "\n";
+    //     std::cout << "max_size: " << myvector1.max_size() << "\n";
+    // }
+    // // NOTE - Change size
+    // {
+    //     std::cout << "------------- resize vector -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     for (int i = 1; i < 10; i++)
+    //         myvector1.push_back(i);
+    //     myvector1.resize(5);
+    //     myvector1.resize(8, 100);
+    //     myvector1.resize(12);
+    //     std::cout << "myvector contains:";
+    //     for (size_t i = 0; i < myvector1.size(); i++)
+    //         std::cout << ' ' << myvector1[i];
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Return size of allocated storage capacity
+    // {
+    //     std::cout << "------------- capacity -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     for (int i = 0; i < 100; i++)
+    //         myvector1.push_back(i);
+    //     std::cout << "size: " << (int)myvector1.size() << '\n';
+    //     std::cout << "capacity: " << (int)myvector1.capacity() << '\n';
+    //     std::cout << "max_size: " << (int)myvector1.max_size() << '\n';
+    // }
+    // // NOTE - Test whether vector is empty
+    // {
+    //     std::cout << "------------- empty -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     int sum1(0);
+    //     for (int i = 1; i <= 10; i++)
+    //         myvector1.push_back(i);
+    //     while (!myvector1.empty())
+    //     {
+    //         sum1 += myvector1.back();
+    //         myvector1.pop_back();
+    //     }
+    //     std::cout << "total: " << sum1 << '\n';
+    // }
+    // // NOTE - Request a change in capacity
+    // {
+    //     std::cout << "------------- reserve -------------" << std::endl;
+    //     ft::vector<int>::size_type sz1;
+    //     ft::vector<int> foo1;
+    //     sz1 = foo1.capacity();
+    //     std::cout << "making foo grow:\n";
+    //     for (int i = 0; i < 100; ++i)
+    //     {
+    //         foo1.push_back(i);
+    //         if (sz1 != foo1.capacity())
+    //         {
+    //             sz1 = foo1.capacity();
+    //             std::cout << "capacity changed: " << sz1 << '\n';
+    //         }
+    //     }
+    //     ft::vector<int> bar1;
+    //     sz1 = bar1.capacity();
+    //     bar1.reserve(100); // this is the only difference with foo above
+    //     std::cout << "making bar grow:\n";
+    //     for (int i = 0; i < 100; ++i)
+    //     {
+    //         bar1.push_back(i);
+    //         if (sz1 != bar1.capacity())
+    //         {
+    //             sz1 = bar1.capacity();
+    //             std::cout << "capacity changed: " << sz1 << '\n';
+    //         }
+    //     }
+    // }
+    // // NOTE - Access element
+    // {
+    //     std::cout << "------------- Access element with operator[] -------------" << std::endl;
+    //     ft::vector<int> myvector1(10);
+    //     ft::vector<int>::size_type sz1 = myvector1.size();
+    //     for (unsigned i = 0; i < sz1; i++)
+    //         myvector1[i] = i;
+    //     for (unsigned i = 0; i < sz1 / 2; i++)
+    //     {
+    //         int temp1;
+    //         temp1 = myvector1[sz1 - 1 - i];
+    //         myvector1[sz1 - 1 - i] = myvector1[i];
+    //         myvector1[i] = temp1;
+    //     }
+    //     std::cout << "myvector contains:";
+    //     for (unsigned i = 0; i < sz1; i++)
+    //         std::cout << ' ' << myvector1[i];
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Access element
+    // {
+    //     std::cout << "------------- Access element with at() -------------" << std::endl;
+    //     ft::vector<int> myvector1(10);
+    //     for (unsigned i = 0; i < myvector1.size(); i++)
+    //         myvector1.at(i) = i;
+    //     std::cout << "myvector contains:";
+    //     for (unsigned i = 0; i < myvector1.size(); i++)
+    //         std::cout << ' ' << myvector1.at(i);
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Access first element
+    // {
+    //     std::cout << "------------- Access first element with front() -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     myvector1.push_back(78);
+    //     myvector1.push_back(16);
+    //     myvector1.front() -= myvector1.back();
+    //     std::cout << "myvector.front() is now " << myvector1.front() << '\n';
+    // }
+    // // NOTE - Access last element
+    // {
+    //     std::cout << "------------- Access last element with back() -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     myvector1.push_back(10);
+    //     while (myvector1.back() != 0)
+    //     {
+    //         myvector1.push_back(myvector1.back() - 1);
+    //     }
+    //     std::cout << "myvector contains:";
+    //     for (unsigned i = 0; i < myvector1.size(); i++)
+    //         std::cout << ' ' << myvector1[i];
+    //     std::cout << '\n';
+    // }
+    // // NOTE - Assign vector content
+    // {
+    //     std::cout << "------------- assign -------------" << std::endl;
+    //     ft::vector<int> first1;
+    //     ft::vector<int> second1;
+    //     ft::vector<int> third1;
+    //     first1.assign(7, 100);
+    //     ft::vector<int>::iterator it1;
+    //     it1 = first1.begin() + 1;
+    //     second1.assign(it1, first1.end() - 1);
+    //     int myints1[] = {1776, 7, 4};
+    //     third1.assign(myints1, myints1 + 3);
+    //     std::cout << "Size of first: " << int(first1.size()) << '\n';
+    //     std::cout << "Size of second: " << int(second1.size()) << '\n';
+    //     std::cout << "Size of third: " << int(third1.size()) << '\n';
+    // }
+    // NOTE - Add element at the end
+    // {
+    //     std::cout << "------------- push back -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     int myint1;
+    //     std::cout << "Please enter some integers (enter 0 to end):\n";
+    //     do
+    //     {
+    //         std::cin >> myint1;
+    //         myvector1.push_back(myint1);
+    //     } while (myint1);
+    //     std::cout << "myvector stores " << int(myvector1.size()) << " numbers.\n";
+    // }
+    // NOTE - Delete last element
+    // {
+    //     std::cout << "------------- pop back -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     int sum1(0);
+    //     myvector1.push_back(100);
+    //     myvector1.push_back(200);
+    //     myvector1.push_back(300);
+    //     while (!myvector1.empty())
+    //     {
+    //         sum1 += myvector1.back();
+    //         myvector1.pop_back();
+    //     }
+    //     std::cout << "The elements of myvector add up to " << sum1 << '\n';
+    // }
+    // NOTE - Clear content
+    // {
+    //     std::cout << "------------- clear -------------" << std::endl;
+    //     ft::vector<int> myvector1;
+    //     myvector1.push_back(100);
+    //     myvector1.push_back(200);
+    //     myvector1.push_back(300);
+    //     std::cout << "myvector contains:";
+    //     for (unsigned i = 0; i < myvector1.size(); i++)
+    //         std::cout << ' ' << myvector1[i];
+    //     std::cout << '\n';
+    //     std::cout << myvector1.size() << std::endl;
+    //     std::cout << myvector1.capacity() << std::endl;
+    //     myvector1.clear();
+    //     std::cout << myvector1.size() << std::endl;
+    //     std::cout << myvector1.capacity() << std::endl;
+    //     myvector1.push_back(1101);
+    //     myvector1.push_back(2202);
+    //     std::cout << "myvector contains:";
+    //     for (unsigned i = 0; i < myvector1.size(); i++)
+    //         std::cout << ' ' << myvector1[i];
+    //     std::cout << '\n';
+    // }
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -35,309 +320,28 @@
 
 int main()
 {
-    std::cout << "*************************************************************************" << std::endl;
-    std::cout << "\t\t\t\tVector" << std::endl;
-    std::cout << "*************************************************************************" << std::endl;
-    //NOTE - Constructor
-    {
-        std::cout << "------------- Vector Constructors -------------" << std::endl;
-        ft::vector<int> first1;
-        ft::vector<int> second(4, 100);
-        ft::vector<int> third(second.begin(), second.end());
-        ft::vector<int> fourth(third);
-        int myints[] = {16, 2, 77, 29};
-        ft::vector<int> fifth(myints, myints + sizeof(myints) / sizeof(int));
-        std::cout << "The contents of fifth are:";
-        for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
-            std::cout << ' ' << *it;
-        std::cout << '\n';
-    }
-    //NOTE - Assign content (operator=)
-    {
-        std::cout << "------------- Assignment operator -------------" << std::endl;
-        ft::vector<int> foo1(3, 0);
-        ft::vector<int> bar1(5, 0);
-        bar1 = foo1;
-        foo1 = ft::vector<int>();
-        std::cout << "Size of foo: " << int(foo1.size()) << '\n';
-        std::cout << "Size of bar: " << int(bar1.size()) << '\n';
-    }
-    //NOTE - Return iterator to beginning
-    {
-        std::cout << "------------- begin() -------------" << std::endl;
-        ft::vector<int> myvector1;
-        for (int i = 1; i <= 5; i++)
-            myvector1.push_back(i);
-        std::cout << "myvector contains:";
-        for (ft::vector<int>::iterator it = myvector1.begin(); it != myvector1.end(); ++it)
-            std::cout << ' ' << *it;
-        std::cout << '\n';
-    }
-    //NOTE - Return iterator to end
-    {
-        std::cout << "------------- end() -------------" << std::endl;
-        ft::vector<int> myvector1;
-        for (int i = 1; i <= 5; i++)
-            myvector1.push_back(i);
-        std::cout << "myvector contains:";
-        for (ft::vector<int>::iterator it = myvector1.begin(); it != myvector1.end(); ++it)
-            std::cout << ' ' << *it;
-        std::cout << '\n';
-    }
-    // NOTE - Return reverse iterator to reverse beginning
-    {
-        std::cout << "------------- reverse begin -------------" << std::endl;
-        ft::vector<int> myvector1(5); // 5 default-constructed ints
-        int i1 = 0;
-        ft::vector<int>::reverse_iterator rit1 = myvector1.rbegin();
-        for (; rit1 != myvector1.rend(); ++rit1)
-            *rit1 = ++i1;
-        std::cout << "myvector contains:";
-        for (ft::vector<int>::iterator it1 = myvector1.begin(); it1 != myvector1.end(); ++it1)
-            std::cout << ' ' << *it1;
-        std::cout << '\n';
-    }
-    // NOTE - Return reverse iterator to reverse end
-    {
-        std::cout << "------------- reverse end -------------" << std::endl;
-        ft::vector<int> myvector1(5);
-        ft::vector<int>::reverse_iterator rit1 = myvector1.rbegin();
-        int i1 = 0;
-        for (rit1 = myvector1.rbegin(); rit1 != myvector1.rend(); ++rit1)
-            *rit1 = ++i1;
-        std::cout << "myvector contains:";
-        for (ft::vector<int>::iterator it1 = myvector1.begin(); it1 != myvector1.end(); ++it1)
-            std::cout << ' ' << *it1;
-        std::cout << '\n';
-    }
-    // NOTE - Return size
-    {
-        std::cout << "------------- vector size -------------" << std::endl;
-        ft::vector<int> myints1;
-        std::cout << "0. size: " << myints1.size() << '\n';
-        for (int i = 0; i < 10; i++)
-            myints1.push_back(i);
-        std::cout << "1. size: " << myints1.size() << '\n';
-        myints1.insert(myints1.end(), 10, 100);
-        std::cout << "2. size: " << myints1.size() << '\n';
-        myints1.pop_back();
-        std::cout << "3. size: " << myints1.size() << '\n';
-    }
-    // NOTE - Return maximum size
-    {
-        std::cout << "------------- vector max size -------------" << std::endl;
-        ft::vector<int> myvector1;
-        for (int i = 0; i < 100; i++)
-            myvector1.push_back(i);
-        std::cout << "size: " << myvector1.size() << "\n";
-        std::cout << "capacity: " << myvector1.capacity() << "\n";
-        std::cout << "max_size: " << myvector1.max_size() << "\n";
-    }
-    // NOTE - Change size
-    {
-        std::cout << "------------- resize vector -------------" << std::endl;
-        ft::vector<int> myvector1;
-        for (int i = 1; i < 10; i++)
-            myvector1.push_back(i);
-        myvector1.resize(5);
-        myvector1.resize(8, 100);
-        myvector1.resize(12);
-        std::cout << "myvector contains:";
-        for (size_t i = 0; i < myvector1.size(); i++)
-            std::cout << ' ' << myvector1[i];
-        std::cout << '\n';
-    }
-    // NOTE - Return size of allocated storage capacity
-    {
-        std::cout << "------------- capacity -------------" << std::endl;
-        ft::vector<int> myvector1;
-        for (int i = 0; i < 100; i++)
-            myvector1.push_back(i);
-        std::cout << "size: " << (int)myvector1.size() << '\n';
-        std::cout << "capacity: " << (int)myvector1.capacity() << '\n';
-        std::cout << "max_size: " << (int)myvector1.max_size() << '\n';
-    }
-    // NOTE - Test whether vector is empty
-    {
-        std::cout << "------------- empty -------------" << std::endl;
-        ft::vector<int> myvector1;
-        int sum1(0);
-        for (int i = 1; i <= 10; i++)
-            myvector1.push_back(i);
-        while (!myvector1.empty())
-        {
-            sum1 += myvector1.back();
-            myvector1.pop_back();
-        }
-        std::cout << "total: " << sum1 << '\n';
-    }
-    // NOTE - Request a change in capacity
-    {
-        std::cout << "------------- reserve -------------" << std::endl;
-        ft::vector<int>::size_type sz1;
-        ft::vector<int> foo1;
-        sz1 = foo1.capacity();
-        std::cout << "making foo grow:\n";
-        for (int i = 0; i < 100; ++i)
-        {
-            foo1.push_back(i);
-            if (sz1 != foo1.capacity())
-            {
-                sz1 = foo1.capacity();
-                std::cout << "capacity changed: " << sz1 << '\n';
-            }
-        }
-        ft::vector<int> bar1;
-        sz1 = bar1.capacity();
-        bar1.reserve(100); // this is the only difference with foo above
-        std::cout << "making bar grow:\n";
-        for (int i = 0; i < 100; ++i)
-        {
-            bar1.push_back(i);
-            if (sz1 != bar1.capacity())
-            {
-                sz1 = bar1.capacity();
-                std::cout << "capacity changed: " << sz1 << '\n';
-            }
-        }
-    }
-    // NOTE - Access element
-    {
-        std::cout << "------------- Access element with operator[] -------------" << std::endl;
-        ft::vector<int> myvector1(10);
-        ft::vector<int>::size_type sz1 = myvector1.size();
-        for (unsigned i = 0; i < sz1; i++)
-            myvector1[i] = i;
-        for (unsigned i = 0; i < sz1 / 2; i++)
-        {
-            int temp1;
-            temp1 = myvector1[sz1 - 1 - i];
-            myvector1[sz1 - 1 - i] = myvector1[i];
-            myvector1[i] = temp1;
-        }
-        std::cout << "myvector contains:";
-        for (unsigned i = 0; i < sz1; i++)
-            std::cout << ' ' << myvector1[i];
-        std::cout << '\n';
-    }
-    // NOTE - Access element
-    {
-        std::cout << "------------- Access element with at() -------------" << std::endl;
-        ft::vector<int> myvector1(10);
-        for (unsigned i = 0; i < myvector1.size(); i++)
-            myvector1.at(i) = i;
-        std::cout << "myvector contains:";
-        for (unsigned i = 0; i < myvector1.size(); i++)
-            std::cout << ' ' << myvector1.at(i);
-        std::cout << '\n';
-    }
-    // NOTE - Access first element
-    {
-        std::cout << "------------- Access first element with front() -------------" << std::endl;
-        ft::vector<int> myvector1;
-        myvector1.push_back(78);
-        myvector1.push_back(16);
-        myvector1.front() -= myvector1.back();
-        std::cout << "myvector.front() is now " << myvector1.front() << '\n';
-    }
-    // NOTE - Access last element
-    {
-        std::cout << "------------- Access last element with back() -------------" << std::endl;
-        ft::vector<int> myvector1;
-        myvector1.push_back(10);
-        while (myvector1.back() != 0)
-        {
-            myvector1.push_back(myvector1.back() - 1);
-        }
-        std::cout << "myvector contains:";
-        for (unsigned i = 0; i < myvector1.size(); i++)
-            std::cout << ' ' << myvector1[i];
-        std::cout << '\n';
-    }
-    // NOTE - Assign vector content
-    {
-        std::cout << "------------- assign -------------" << std::endl;
-        ft::vector<int> first1;
-        ft::vector<int> second1;
-        ft::vector<int> third1;
-        first1.assign(7, 100);
-        ft::vector<int>::iterator it1;
-        it1 = first1.begin() + 1;
-        second1.assign(it1, first1.end() - 1);
-        int myints1[] = {1776, 7, 4};
-        third1.assign(myints1, myints1 + 3);
-        std::cout << "Size of first: " << int(first1.size()) << '\n';
-        std::cout << "Size of second: " << int(second1.size()) << '\n';
-        std::cout << "Size of third: " << int(third1.size()) << '\n';
-    }
-    // NOTE - Add element at the end
-    {
-        std::cout << "------------- push back -------------" << std::endl;
-        ft::vector<int> myvector1;
-        int myint1;
-        std::cout << "Please enter some integers (enter 0 to end):\n";
-        do
-        {
-            std::cin >> myint1;
-            myvector1.push_back(myint1);
-        } while (myint1);
-        std::cout << "myvector stores " << int(myvector1.size()) << " numbers.\n";
-    }
-    // NOTE - Delete last element
-    {
-        std::cout << "------------- pop back -------------" << std::endl;
-        ft::vector<int> myvector1;
-        int sum1(0);
-        myvector1.push_back(100);
-        myvector1.push_back(200);
-        myvector1.push_back(300);
-        while (!myvector1.empty())
-        {
-            sum1 += myvector1.back();
-            myvector1.pop_back();
-        }
-        std::cout << "The elements of myvector add up to " << sum1 << '\n';
-    }
-    // NOTE - Clear content
-    {
-        std::cout << "------------- clear -------------" << std::endl;
-        ft::vector<int> myvector1;
-        myvector1.push_back(100);
-        myvector1.push_back(200);
-        myvector1.push_back(300);
-        std::cout << "myvector contains:";
-        for (unsigned i = 0; i < myvector1.size(); i++)
-            std::cout << ' ' << myvector1[i];
-        std::cout << '\n';
-        std::cout << myvector1.size() << std::endl;
-        std::cout << myvector1.capacity() << std::endl;
-        myvector1.clear();
-        std::cout << myvector1.size() << std::endl;
-        std::cout << myvector1.capacity() << std::endl;
-        myvector1.push_back(1101);
-        myvector1.push_back(2202);
-        std::cout << "myvector contains:";
-        for (unsigned i = 0; i < myvector1.size(); i++)
-            std::cout << ' ' << myvector1[i];
-        std::cout << '\n';
-    }
+
     // NOTE - Insert elements
     {
         std::cout << "------------- insert -------------" << std::endl;
-        ft::vector<int> myvector1(3, 100);
-        std::cout << myvector1.size() << std::endl;
-        std::cout << myvector1.capacity() << std::endl;
         ft::vector<int>::iterator it1;
+        ft::vector<int> myvector1(3, 100);
+        std::cout << "size: " << myvector1.size() << std::endl;
+        std::cout << "capacity: " << myvector1.capacity() << std::endl;
         it1 = myvector1.begin();
         it1 = myvector1.insert(it1, 200);
         myvector1.insert(it1, 2, 300);
         it1 = myvector1.begin();
         ft::vector<int> anothervector1(2, 400);
-        std::cout << myvector1.size() << std::endl;
-        std::cout << myvector1.capacity() << std::endl;
+        std::cout << "size: " << myvector1.size() << std::endl;
+        std::cout << "capacity: " << myvector1.capacity() << std::endl;
         myvector1.insert(it1 + 2, anothervector1.begin(), anothervector1.end());
-        std::cout << myvector1.size() << std::endl;
-        std::cout << myvector1.capacity() << std::endl;
+        std::cout << "size: " << myvector1.size() << std::endl;
+        std::cout << "capacity: " << myvector1.capacity() << std::endl;
+        std::cout << "myvector contains:";
+        for (it1 = myvector1.begin(); it1 < myvector1.end(); it1++)
+            std::cout << ' ' << *it1;
+		std::cout << std::endl;
         int myarray1[] = {501, 502, 503};
         myvector1.insert(myvector1.begin(), myarray1, myarray1 + 3);
         std::cout << "myvector contains:";
@@ -345,6 +349,7 @@ int main()
             std::cout << ' ' << *it1;
         std::cout << '\n';
     }
+	return 0;
     {
         ft::vector<int> vec1;
         vec1.push_back(10);
@@ -421,7 +426,12 @@ int main()
     {
         std::cout << "------------- relational operators -------------" << std::endl;
         ft::vector<int> foo(2, 200);
-        ft::vector<int> bar(3, 200);
+        ft::vector<int> bar;
+		bar.push_back(200);
+		bar.push_back(200);
+		bar.push_back(300);
+		bar.push_back(400);
+		bar.push_back(500);
         if (foo == bar)
             std::cout << "foo and bar are equal\n";
         if (foo != bar)

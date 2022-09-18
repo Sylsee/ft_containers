@@ -26,7 +26,7 @@ _YELLOW	=	\e[33m
 # [ COMPILATION VARIABLES ]#
 
 CXX		=	c++
-CXXFLAGS=	-Wall -Wextra -Werror --std=c++98 -g
+CXXFLAGS=	-Wall -Wextra -Werror --std=c++98 -g3
 
 # [ VALGRIND VARIABLES ] #
 
