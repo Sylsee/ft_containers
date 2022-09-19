@@ -2,3 +2,4 @@ objs/
 bin/
 log/
 containers_test
+test
