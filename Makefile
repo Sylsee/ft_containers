@@ -6,7 +6,7 @@
 #    By: arguilla <arguilla@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/13 19:04:24 by spoliart          #+#    #+#              #
-#    Updated: 2022/05/07 14:06:59 by spoliart         ###   ########.fr        #
+#    Updated: 2022/09/19 18:14:49 by spoliart         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ _YELLOW	=	\e[33m
 # [ COMPILATION VARIABLES ]#
 
 CXX		=	c++
-CXXFLAGS=	-Wall -Wextra -Werror --std=c++98 -g3
+CXXFLAGS=	-Wall -Wextra -Werror --std=c++98
 
 # [ VALGRIND VARIABLES ] #
 

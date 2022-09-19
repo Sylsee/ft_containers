@@ -362,6 +362,7 @@ namespace ft
 		{
 			if (this != &rhs)
 			{
+				clear();
 				_reset();
 				_compare = rhs._compare;
 				if (rhs._root() != 0)
@@ -560,12 +561,21 @@ namespace ft
 
 		void swap(RB_Tree& t)
 		{
-
-			ft::swap(this->_root(), t._root());
-			ft::swap(this->_left_most(), t._left_most());
-			ft::swap(this->_right_most(), t._right_most());
-			_root()->parent = &_header;
-			t._root()->parent = &t._header;
+			if (_root() == 0)
+			{
+				if (t._root() != 0)
+					_move_data(t);
+			}
+			else if (t._root() == 0)
+				t._move_data(*this);
+			else
+			{
+				ft::swap(this->_root(), t._root());
+				ft::swap(this->_left_most(), t._left_most());
+				ft::swap(this->_right_most(), t._right_most());
+				_root()->parent = &_header;
+				t._root()->parent = &t._header;
+			}
 			ft::swap(this->_size, t._size);
 			ft::swap(this->_node_alloc, t._node_alloc);
 			ft::swap(this->_compare, t._compare);

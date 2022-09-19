@@ -53,6 +53,9 @@
 		"set": "cpp",
 		"optional": "cpp",
 		"fstream": "cpp",
-		"*.ipp": "cpp"
+		"*.ipp": "cpp",
+		"ctime": "cpp",
+		"iomanip": "cpp",
+		"ranges": "cpp"
 	}
 }

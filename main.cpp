@@ -6,7 +6,7 @@
 /*   By: spoliart <spoliart@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 19:06:17 by spoliart          #+#    #+#             */
-/*   Updated: 2022/05/07 14:00:24 by spoliart         ###   ########.fr       */
+/*   Updated: 2022/09/19 18:13:18 by spoliart         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <iostream>
@@ -781,7 +781,7 @@ int main()
                 mymap[i] = i;
             std::cout << "The map contains 1000 elements.\n";
         }
-        std::cout << mymap.max_size() << std::endl;
+        std::cout << "max_size: " << mymap.max_size() << std::endl;
     }
     // NOTE - Insert elements
     {
